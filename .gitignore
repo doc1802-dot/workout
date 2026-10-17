@@ -1,3 +1,5 @@
 __pycache__/
 records.csv
 main_backup.py
+.claude/
+.pytest_cache/
