@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p C:/Users/김덕환/AppData/Local/Temp/claude/D--workout/3b30ddc7-a656-4b69-bf9b-41728188dcf7/scratchpad/t8)",
+      "Bash(cp /d/workout/main.py C:/Users/김덕환/AppData/Local/Temp/claude/D--workout/3b30ddc7-a656-4b69-bf9b-41728188dcf7/scratchpad/t8/)",
+      "Bash(cd C:/Users/김덕환/AppData/Local/Temp/claude/D--workout/3b30ddc7-a656-4b69-bf9b-41728188dcf7/scratchpad/t8)",
+      "Bash(rm -f records.csv)",
+      "Bash(printf '1\\\\n2026-10-12\\\\n1\\\\n40\\\\n120\\\\n142\\\\n171\\\\n85\\\\n110\\\\n950\\\\n북한강\\\\n1\\\\n2026-10-13\\\\n2\\\\n4.2\\\\n25\\\\n150\\\\n170\\\\n172\\\\n180\\\\n300\\\\n한강\\\\n2\\\\n0\\\\n')",
+      "Bash(PYTHONUTF8=1 python main.py)",
+      "Bash(mkdir -p C:/Users/김덕환/AppData/Local/Temp/claude/D--workout/3b30ddc7-a656-4b69-bf9b-41728188dcf7/scratchpad/t9)",
+      "Bash(cp /d/workout/main.py C:/Users/김덕환/AppData/Local/Temp/claude/D--workout/3b30ddc7-a656-4b69-bf9b-41728188dcf7/scratchpad/t9/)",
+      "Bash(mkdir -p C:/Users/김덕환/AppData/Local/Temp/claude/D--workout/3b30ddc7-a656-4b69-bf9b-41728188dcf7/scratchpad/t10)",
+      "Bash(cp /d/workout/main.py C:/Users/김덕환/AppData/Local/Temp/claude/D--workout/3b30ddc7-a656-4b69-bf9b-41728188dcf7/scratchpad/t10/)",
+      "WebSearch",
+      "Bash(PYTHONUTF8=1 python -c \"import ast,sys; ast.parse\\(open\\('main.py',encoding='utf-8'\\).read\\(\\)\\)\")",
+      "Bash(mkdir -p C:/Users/김덕환/AppData/Local/Temp/claude/D--workout/3b30ddc7-a656-4b69-bf9b-41728188dcf7/scratchpad/t11)",
+      "Bash(cp /d/workout/main.py /d/workout/records.csv C:/Users/김덕환/AppData/Local/Temp/claude/D--workout/3b30ddc7-a656-4b69-bf9b-41728188dcf7/scratchpad/t11/)",
+      "Bash(sed -i '218s/int\\(r\\\\[\"시간\\(분\\)\"\\\\]$/int\\(r[\"시간\\(분\\)\"]\\)/' main.py)",
+      "Bash(mkdir -p C:/Users/김덕환/AppData/Local/Temp/claude/D--workout/3b30ddc7-a656-4b69-bf9b-41728188dcf7/scratchpad/t11b)",
+      "Bash(cp /d/workout/main.py /d/workout/records.csv C:/Users/김덕환/AppData/Local/Temp/claude/D--workout/3b30ddc7-a656-4b69-bf9b-41728188dcf7/scratchpad/t11b/)",
+      "Bash(cd C:/Users/김덕환/AppData/Local/Temp/claude/D--workout/3b30ddc7-a656-4b69-bf9b-41728188dcf7/scratchpad/t11b)",
+      "Bash(sed -n '211,233p' main.py)",
+      "Bash(echo ----)",
+      "Bash(python -c \"import ast;ast.parse\\(open\\('main.py',encoding='utf-8'\\).read\\(\\)\\);print\\('syntax ok'\\)\")",
+      "mcp__1a59c906-04da-521d-bda7-7f71b9f9e01c__batch",
+      "mcp__1a59c906-04da-521d-bda7-7f71b9f9e01c__guide",
+      "mcp__1a59c906-04da-521d-bda7-7f71b9f9e01c__update",
+      "mcp__1a59c906-04da-521d-bda7-7f71b9f9e01c__read",
+      "Bash(rm -rf C:/Users/김덕환/AppData/Local/Temp/claude/D--workout/3b30ddc7-a656-4b69-bf9b-41728188dcf7/scratchpad/t14)",
+      "Bash(mkdir -p C:/Users/김덕환/AppData/Local/Temp/claude/D--workout/3b30ddc7-a656-4b69-bf9b-41728188dcf7/scratchpad/t14)",
+      "Bash(cp /d/workout/main.py /d/workout/records.csv C:/Users/김덕환/AppData/Local/Temp/claude/D--workout/3b30ddc7-a656-4b69-bf9b-41728188dcf7/scratchpad/t14/)",
+      "Bash(grep -v \"^[0-9]\\\\. \\\\|=====\\\\|번호 선택: $\")"
+    ]
+  }
+}
