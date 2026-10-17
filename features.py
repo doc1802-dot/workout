@@ -191,7 +191,7 @@ def show_pr():
     if best_bike is None:
         print("  바이크 최고 속도 : 기록 없음")
     else:
-        print(f"  바이크 최고 속도 : {calc_pace_or_speed(best_bike)}  ({best_bike['날짜']})")
+        print(f"  바이크 최고 : {calc_pace_or_speed(best_bike)}  ({best_bike['날짜']})")
  
     print(f"  최장 거리        : {longest['거리(km)']}km  "
           f"({longest['날짜']} {longest['종목']})")
