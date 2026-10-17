@@ -186,7 +186,7 @@ def show_pr():
     if best_run is None:                         # None에는 ["거리"]를 쓸 수 없으므로 먼저 확인
         print("  러닝 최고 페이스 : 기록 없음")
     else:
-        print(f"  러닝 최고 페이스 : {calc_pace_or_speed(best_run)}  ({best_run['날짜']})")
+        print(f"  러닝 최고 : {calc_pace_or_speed(best_run)}  ({best_run['날짜']})")
  
     if best_bike is None:
         print("  바이크 최고 속도 : 기록 없음")
