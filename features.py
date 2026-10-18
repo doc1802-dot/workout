@@ -1,6 +1,7 @@
 import os
 from storage import FILE, FIELDS, load_records, save_record, save_all_records
-from calc import get_speed, get_pace_sec, calc_pace_or_speed
+from storage import load_workouts, save_workout, save_all_workouts
+from workout import Workout, from_row
 from inputs import input_int, input_float, input_date, input_sport, cadence_unit
 
 # ------------------------------------------------------------------
@@ -8,53 +9,54 @@ from inputs import input_int, input_float, input_date, input_sport, cadence_unit
 # ------------------------------------------------------------------
 def add_record():
     print("\n[기록 추가]  (날짜는 엔터만 치면 오늘)")
+    workouts = []
     date = input_date("날짜 (YYYY-MM-DD): ")
     sport = input_sport()
     unit = cadence_unit(sport)
- 
-    record = {
-        "날짜": date,
-        "종목": sport,
-        "거리(km)": input_float("거리(km): ", 0.1),     # 0은 나눗셈 오류 방지
-        "시간(분)": input_int("시간(분): ", 1),
-        "평균심박": input_int("평균 심박수(bpm, 모르면 0): "),
-        "최대심박": input_int("최대 심박수(bpm, 모르면 0): "),
-        "평균케이던스": input_int(f"평균 케이던스({unit}, 모르면 0): "),
-        "최대케이던스": input_int(f"최대 케이던스({unit}, 모르면 0): "),
-        "칼로리": input_int("칼로리(kcal, 모르면 0): "),
-        "메모": input("메모: ").strip(),
-    }
-    save_record(record)
-    print("\n저장 완료!  " + calc_pace_or_speed(record))
+    
+    workouts = Workout(
+        date,
+        sport,
+        input_float("거리(km): ", 0.1),     # 0은 나눗셈 오류 방지
+        input_int("시간(분): ", 1),
+        input_int("평균 심박수(bpm, 모르면 0): "),
+        input_int("최대 심박수(bpm, 모르면 0): "),
+        input_int(f"평균 케이던스({unit}, 모르면 0): "),
+        input_int(f"최대 케이던스({unit}, 모르면 0): "),
+        input_int("칼로리(kcal, 모르면 0): "),
+        input("메모: ").strip(),
+    )
+    save_workout(workouts)
+    print("\n저장 완료!  " + workouts.summary())
  
  
 # ------------------------------------------------------------------
 # 5. 메뉴 2: 기록 보기
 # ------------------------------------------------------------------
 def show_records():
-    records = load_records()
-    if len(records) == 0:
+    workouts = load_workouts()
+    
+    if len(workouts) == 0:
         print("\n저장된 기록이 없습니다.")
         return                                   # 값 없는 return: 여기서 함수 끝
  
-    print(f"\n[전체 기록]  총 {len(records)}개")
-    for i, r in enumerate(records, start=1):     # 화면 번호는 1부터
-        print(f"{i}. {r['날짜']}  {r['종목']}  {r['거리(km)']}km  {r['시간(분)']}분")
-        print("     " + calc_pace_or_speed(r))   # 들여쓰기는 출력하는 쪽에서
-        unit = cadence_unit(r["종목"])
-        print(f"     심박 {r['평균심박']}/{r['최대심박']}bpm  "
-              f"케이던스 {r['평균케이던스']}/{r['최대케이던스']}{unit}  "
-              f"{r['칼로리']}kcal")
-        if r["메모"] != "":
-            print(f"     메모: {r['메모']}")
+    print(f"\n[전체 기록]  총 {len(workouts)}개")
+    for i, w in enumerate(workouts, start=1):     # 화면 번호는 1부터
+        print(f"{i}. {w.date}  {w.sport}  {w.distance}km  {w.minutes}분")
+        print("     " + w.summary())   # 들여쓰기는 출력하는 쪽에서
+        print(f"     심박 {w.avg_hr}/{w.max_hr}bpm  "
+              f"케이던스 {w.avg_cad}/{w.max_cad}{w.cadence_unit()}  "
+              f"{w.calories}kcal")
+        if w.memo != "":
+            print(f"     메모: {w.memo}")
  
  
 # ------------------------------------------------------------------
 # 6. 메뉴 3: 합계 (전체 + 종목별)
 # ------------------------------------------------------------------
 def show_total():
-    records = load_records()
-    if len(records) == 0:
+    workouts = load_workouts()
+    if len(workouts) == 0:
         print("\n저장된 기록이 없습니다.")
         return
  
@@ -64,19 +66,19 @@ def show_total():
     run_km = 0.0
     bike_km = 0.0
  
-    for r in records:
-        km = float(r["거리(km)"])               # CSV 값은 전부 문자열 → 변환
+    for w in workouts:
+        km = w.distance             
         total_km += km                          # 누적 합계
-        total_min += int(r["시간(분)"])
-        total_cal += int(r["칼로리"])
-        if r["종목"] == "러닝":
+        total_min += w.minutes
+        total_cal += w.calories
+        if w.sport == "러닝":
             run_km += km
-        elif r["종목"] == "바이크":
+        elif w.sport == "바이크":
             bike_km += km
  
     hours, minutes = divmod(total_min, 60)
     print("\n[전체 합계]")
-    print(f"  기록 수 : {len(records)}개")
+    print(f"  기록 수 : {len(workouts)}개")
     print(f"  총 거리 : {total_km:,.1f} km")
     print(f"  총 시간 : {hours}시간 {minutes}분")
     print(f"  총 칼로리: {total_cal:,} kcal")
@@ -87,23 +89,23 @@ def show_total():
 # 7. 메뉴 4: 월별 합계 (딕셔너리 장부 패턴)
 # ------------------------------------------------------------------
 def show_monthly():
-    records = load_records()
-    if len(records) == 0:
+    workouts = load_workouts()
+    if len(workouts) == 0:
         print("\n저장된 기록이 없습니다.")
         return
  
     monthly = {}                                 # {"2026-10": {...}, ...}
-    for r in records:
-        month = r["날짜"][:7]                    # "2026-10-12"[:7] → "2026-10"
+    for w in workouts:
+        month = w.date[:7]                    # "2026-10-12"[:7] → "2026-10"
         if month not in monthly:                 # 칸이 없으면 먼저 만든다
             monthly[month] = {"count": 0, "distance": 0.0, "run": 0.0, "bike": 0.0}
         m = monthly[month]                       # 복사가 아니라 같은 상자를 부르는 이름
-        km = float(r["거리(km)"])
+        km = w.distance
         m["count"] += 1
         m["distance"] += km
-        if r["종목"] == "러닝":
+        if w.sport == "러닝":
             m["run"] += km
-        elif r["종목"] == "바이크":
+        elif w.sport == "바이크":
             m["bike"] += km
  
     print("\n[월별 합계]")
@@ -160,8 +162,8 @@ def delete_record():
 # 10. 메뉴 6: 개인 최고기록 (최댓값/최솟값 찾기 패턴)
 # ------------------------------------------------------------------
 def show_pr():
-    records = load_records()
-    if len(records) == 0:
+    workouts = load_workouts()
+    if len(workouts) == 0:
         print("\n저장된 기록이 없습니다.")
         return
  
@@ -169,32 +171,32 @@ def show_pr():
     best_bike = None
     longest = None
  
-    for r in records:
-        if r["종목"] == "러닝":
+    for w in workouts:
+        if w.sport == "러닝":
             # 페이스는 '작을수록' 빠르다 → < 로 비교
-            if best_run is None or get_pace_sec(r) < get_pace_sec(best_run):
-                best_run = r
-        elif r["종목"] == "바이크":
+            if best_run is None or w.pace_sec() < best_run.pace_sec():
+                best_run = w
+        elif w.sport == "바이크":
             # 속도는 '클수록' 빠르다 → > 로 비교
-            if best_bike is None or get_speed(r) > get_speed(best_bike):
-                best_bike = r
+            if best_bike is None or w.speed() > best_bike.speed():
+                best_bike = w
  
-        if longest is None or float(r["거리(km)"]) > float(longest["거리(km)"]):
-            longest = r
+        if longest is None or w.distance > longest.distance:
+            longest = w
  
     print("\n[개인 최고기록 PR]")
     if best_run is None:                         # None에는 ["거리"]를 쓸 수 없으므로 먼저 확인
         print("  러닝 최고 페이스 : 기록 없음")
     else:
-        print(f"  러닝 최고 : {calc_pace_or_speed(best_run)}  ({best_run['날짜']})")
+        print(f"  러닝 최고 : {best_run.summary()}  ({best_run.date})")
  
     if best_bike is None:
         print("  바이크 최고 속도 : 기록 없음")
     else:
-        print(f"  바이크 최고 : {calc_pace_or_speed(best_bike)}  ({best_bike['날짜']})")
+        print(f"  바이크 최고 : {best_bike.summary()}  ({best_bike.date})")
  
-    print(f"  최장 거리        : {longest['거리(km)']}km  "
-          f"({longest['날짜']} {longest['종목']})")
+    print(f"  최장 거리        : {longest.distance}km  "
+          f"({longest.date} {longest.sport})")
  
  
 # ------------------------------------------------------------------
