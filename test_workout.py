@@ -1,4 +1,4 @@
-from workout import Workout
+from workout import Workout, from_row
 
 
 def make(sport, distance, minutes):
@@ -34,3 +34,20 @@ def test_summary_run():
 def test_summary_bike():
     w = make("바이크", "40.0", "120")
     assert w.summary() == f"평균속도: 20.0 km/h"
+
+def test_from_row():
+    row = {"날짜": "2026-10-01", "종목": "러닝", "거리(km)": "5.0", "시간(분)": "30",
+           "평균심박": "160", "최대심박": "180", "평균케이던스": "170",
+           "최대케이던스": "180", "칼로리": "450", "메모": "태화강 런"}
+    w = from_row(row)
+    assert w.distance == 5.0
+    assert w.avg_hr == 160
+    assert w.memo == "태화강 런"
+
+
+def test_to_row_round_trip():
+    w = make("바이크", "40.0", "120")
+    w2 = from_row(w.to_row())             # 객체 → 딕셔너리 → 다시 객체
+    assert w2.distance == w.distance
+    assert w2.minutes == w.minutes
+    assert w2.summary() == w.summary()
