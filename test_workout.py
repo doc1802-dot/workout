@@ -28,9 +28,9 @@ def test_cadence_unit():
 
 def test_summary_run():
     w = make("러닝", "5.0", "27")
-    assert w.summary() == "평균페이스 : 5분 24초 /km"
+    assert w.summary() == "평균페이스: 5분 24초 /km"
 
 
 def test_summary_bike():
     w = make("바이크", "40.0", "120")
-    assert w.summary() == f"평균속도 20.0 km/h"
+    assert w.summary() == f"평균속도: 20.0 km/h"

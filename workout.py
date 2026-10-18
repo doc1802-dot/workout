@@ -28,9 +28,9 @@ class Workout:
     def summary(self):
         """바이크면 평균속도, 러닝이면 평균페이스 문자열"""
         if self.sport == "바이크":
-            return f"평균속도 {self.speed():.1f} km/h"
+            return f"평균속도: {self.speed():.1f} km/h"
         total_sec = round(self.pace_sec())
         minute, second = divmod(total_sec,60)
-        return f"평균페이스 : {minute}분 {second:02d}초 /km"
+        return f"평균페이스: {minute}분 {second:02d}초 /km"
     
     
