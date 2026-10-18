@@ -1,5 +1,5 @@
 import csv, os
-
+from workout import from_row
 
 FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "records.csv")
  
@@ -40,4 +40,23 @@ def save_all_records(records):
         writer.writeheader()
         writer.writerows(records)
  
- 
+# ------------------------------------------------------------------
+# Workout 객체 함수 추가
+# ------------------------------------------------------------------
+def load_workouts():
+    """CSV를 읽어 Workout 객체 리스트로 돌려준다"""
+    workouts = []
+    for row in load_records():
+        workouts.append(from_row(row))
+    return workouts
+
+def save_workout(w):
+    """Workout 하나를 파일 끝에 붙인다."""
+    save_record(w.to_row())
+
+def save_all_workouts(workouts):
+    """Workout 리스트 전체를 파일에 다시 쓴다."""
+    rows=[]
+    for w in workouts:
+        rows.append(w.to_row())
+    save_all_records(rows)
