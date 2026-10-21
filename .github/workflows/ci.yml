@@ -77,4 +77,5 @@ jobs:
         if: github.event_name == 'pull_request'
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh pr comment ${{ github.event.pull_request.number }} --body "미리보기 배포: ${{ steps.deploy.outputs.url }}"
+        run: |
+          gh pr comment ${{ github.event.pull_request.number }} --body "미리보기 배포: ${{ steps.deploy.outputs.url }}"
