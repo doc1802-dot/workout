@@ -1,0 +1,86 @@
+name: CI / Deploy
+
+# PR → 테스트 + 미리보기 배포(주소를 PR 댓글로)
+# master에 push(=PR 병합) → 테스트 + 운영 배포 (https://workout-eight-gamma.vercel.app)
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+  VERCEL_CLI: vercel@59.17.0
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements-dev.txt
+      - run: python -m pytest -q
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+
+  deploy:
+    needs: [backend, frontend]
+    runs-on: ubuntu-latest
+    # 포크에서 온 PR에는 비밀값이 없으므로 같은 저장소의 PR과 master push만 배포
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    permissions:
+      contents: read
+      pull-requests: write
+    environment: ${{ github.event_name == 'push' && 'production' || 'preview' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # vercel build가 Python 함수(api/index.py)를 묶을 때 uv가 필요하다
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: astral-sh/setup-uv@v6
+      - name: Vercel 설정 받기
+        run: |
+          npx --yes $VERCEL_CLI pull --yes \
+            --environment=${{ github.event_name == 'push' && 'production' || 'preview' }} \
+            --token=${{ secrets.VERCEL_TOKEN }}
+      - name: 빌드
+        run: npx --yes $VERCEL_CLI build ${{ github.event_name == 'push' && '--prod' || '' }} --token=${{ secrets.VERCEL_TOKEN }}
+      - name: 배포
+        id: deploy
+        run: |
+          url=$(npx --yes $VERCEL_CLI deploy --prebuilt ${{ github.event_name == 'push' && '--prod' || '' }} --token=${{ secrets.VERCEL_TOKEN }})
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "배포 주소: $url" >> "$GITHUB_STEP_SUMMARY"
+      - name: 운영 확인
+        if: github.event_name == 'push'
+        run: curl -fsS https://workout-eight-gamma.vercel.app/api/health
+      - name: PR에 미리보기 주소 남기기
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr comment ${{ github.event.pull_request.number }} --body "미리보기 배포: ${{ steps.deploy.outputs.url }}"
