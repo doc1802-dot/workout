@@ -61,3 +61,9 @@ def test_token_not_refreshed_when_valid():
     conn = {"expires_at": "2026-10-21T10:00:00+00:00", "refresh_token": "r"}
     expires = datetime.fromisoformat(conn["expires_at"]).timestamp()
     assert strava.refresh_if_needed(conn, now=expires - 3600) is None      # 만료 1시간 전
+
+
+def test_control_chars_in_name_removed():
+    # 오픈라이더 기록은 이름 앞에 \u0000 이 붙어 있어 그대로 넣으면 DB가 거부한다
+    w = strava.to_workout({**GRANFONDO, "name": "\u0000\u0017신정5동 > 신정5동"})
+    assert w.name == "신정5동 > 신정5동"
