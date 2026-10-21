@@ -32,9 +32,14 @@ export default function Login({ session }) {
     }
   }
   return (
-    <main className="login-wrap">
-      <section className="panel login-panel">
-        <div className="brand">↗ 운동기록</div>
+    <main className="flex min-h-dvh items-center justify-center p-4">
+      <section className="w-full max-w-md rounded-xl border border-surface-container-highest bg-surface-container p-6 sm:p-10">
+        <div className="mb-8 font-headline-lg text-headline-lg text-white">
+          PACE<span className="text-primary-container">HUB</span>
+          <p className="mt-1 font-label-caps text-label-caps text-on-surface-variant">
+            TELEMETRY CORE
+          </p>
+        </div>
         <h1>
           오늘의 움직임을
           <br />
@@ -90,7 +95,9 @@ export default function Login({ session }) {
               {message}
             </p>
           )}
-          <button disabled={busy}>{busy ? '처리 중…' : signup ? '회원가입' : '로그인'}</button>
+          <button className="button" disabled={busy}>
+            {busy ? '처리 중…' : signup ? '회원가입' : '로그인'}
+          </button>
         </form>
       </section>
     </main>

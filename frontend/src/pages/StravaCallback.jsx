@@ -25,7 +25,10 @@ export default function StravaCallback() {
       try {
         // state: 연결을 시작한 사용자가 맞는지 서버가 확인하는 서명값
         const state = params.get('state') || ''
-        await api('/strava/exchange', { method: 'POST', body: { code, state } })
+        await api('/strava/exchange', {
+          method: 'POST',
+          body: { code, state, scope: params.get('scope') },
+        })
         setMessage('연결되었습니다. 운동 기록을 동기화하고 있습니다…')
         const result = await syncAll(api, (progress) =>
           setMessage(`연결되었습니다. 운동 기록을 가져오는 중… (${progress.fetched}개)`),
@@ -43,17 +46,24 @@ export default function StravaCallback() {
     connect()
   }, [params, navigate])
   return (
-    <section className="panel">
+    <section className="mx-auto max-w-xl rounded-xl border-t-4 border-primary-container bg-surface-container p-6 sm:p-10">
+      <p className="mb-3 font-label-caps text-label-caps text-primary-container">
+        STRAVA CONNECTION
+      </p>
       <h1>Strava 연결</h1>
       {error ? (
         <>
           <p className="notice error" role="alert">
             {error}
           </p>
-          <Link to="/settings">연동 화면으로 돌아가기</Link>
+          <Link className="secondary mt-4" to="/settings">
+            연동 화면으로 돌아가기
+          </Link>
         </>
       ) : (
-        <p role="status">{message}</p>
+        <p className="mt-5 text-on-surface-variant" role="status">
+          {message}
+        </p>
       )}
     </section>
   )

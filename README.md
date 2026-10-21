@@ -2,8 +2,11 @@
 
 러닝·바이크 운동 기록을 입력하고 보는 웹사이트. Strava 활동을 가져와 동기화할 수 있다.
 
-- 화면: React (Vite) — `frontend/`
+- 화면: React (Vite) + Tailwind, PACEHUB 디자인 — `frontend/` (Stitch 원본: `design/stitch/`)
+  - 피드 `/` · 활동 분석 `/analytics` · 활동 상세 `/activities/:id` · 라이브 HUD `/live`
+  - 기어 & 통계 `/gear` · 세그먼트 `/segments` · 기록 관리 `/workouts` · 연동 설정 `/settings`
 - API: FastAPI — `backend/` (Vercel 진입점 `api/index.py`)
+  - Strava 통신 `strava.py`, 응답 정리·GPX `strava_detail.py`
 - DB / 로그인: Supabase (Postgres + Auth, RLS로 본인 기록만 접근) — `supabase/migrations/`
 - 배포: Vercel (화면 + `/api/*` 서버리스 함수)
 - 예전 콘솔 프로그램: `cli/` (`cli/run.bat`, CSV 저장 그대로 동작)

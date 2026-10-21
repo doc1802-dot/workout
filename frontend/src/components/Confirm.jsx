@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 
-// 화면 가운데 뜨는 확인 팝업. <dialog>의 showModal이 배경 막기·Esc 닫기·포커스 가두기를 해 준다.
+// Confirm accepts message, busy, onConfirm, onCancel and confirmLabel; uses a modal dialog.
 export default function Confirm({ message, busy, onConfirm, onCancel, confirmLabel = '확인' }) {
   const dialog = useRef(null)
   useEffect(() => {
@@ -11,7 +11,7 @@ export default function Confirm({ message, busy, onConfirm, onCancel, confirmLab
   return (
     <dialog
       ref={dialog}
-      className="confirm"
+      className="max-w-md"
       aria-label={message}
       onCancel={(event) => {
         event.preventDefault()
@@ -22,8 +22,12 @@ export default function Confirm({ message, busy, onConfirm, onCancel, confirmLab
       }}
     >
       <p>{message}</p>
-      <div className="actions">
-        <button className="danger" disabled={busy} onClick={onConfirm}>
+      <div className="mt-6 flex flex-wrap justify-end gap-3">
+        <button
+          className="rounded-lg bg-error-container px-4 py-2 text-on-error-container"
+          disabled={busy}
+          onClick={onConfirm}
+        >
           {busy ? '처리 중…' : confirmLabel}
         </button>
         <button className="secondary" disabled={busy} onClick={onCancel} autoFocus>

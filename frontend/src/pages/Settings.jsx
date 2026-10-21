@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { api } from '../lib/api'
 import { number, syncAll, syncMessage } from '../lib/format'
+import { Badge, Metric } from '../components/ui'
 import Confirm from '../components/Confirm'
 export default function Settings() {
   const location = useLocation()
@@ -69,6 +70,18 @@ export default function Settings() {
         })
         const { url } = await api(`/strava/authorize-url?${query}`)
         window.location.href = url
+      } else if (kind === 'resync') {
+        await api('/strava/resync', { method: 'POST' })
+        let fetched = 0
+        let result
+        do {
+          result = await api('/strava/sync?update=true', { method: 'POST' })
+          fetched += result.fetched
+          setMessage(`?? ?? ?? ?? (${number(fetched)}? ??)`)
+        } while (result.has_more)
+        setMessage(`?? ?? ???? ?? ? ${number(fetched)}? ?? ? ?? ??`)
+        setStatus((current) => ({ ...current, last_synced_at: result.last_synced_at }))
+        setConfirm(false)
       } else if (kind === 'sync') {
         const result = await syncAll(api, (progress) =>
           setMessage(`운동 기록을 가져오는 중… (${progress.fetched}개)`),
@@ -85,6 +98,15 @@ export default function Settings() {
         }))
         setConfirm(false)
         setMessage('Strava 연결을 해제했습니다.')
+      }
+      if (kind === 'sync' || kind === 'resync') {
+        try {
+          const rows = await api('/workouts')
+          setStravaWorkouts(rows.filter((row) => row.source === 'strava'))
+          setWorkoutsError('')
+        } catch (refreshError) {
+          setWorkoutsError(refreshError.message)
+        }
       }
     } catch (error) {
       setError(error.message)
@@ -113,7 +135,7 @@ export default function Settings() {
     <>
       <div className="page-heading">
         <div>
-          <p className="eyebrow">기록을 한곳에</p>
+          <p className="font-label-caps text-label-caps text-primary-container">기록을 한곳에</p>
           <h1>서비스 연동</h1>
           <p className="muted">Strava 활동과 기존 운동 기록을 가져오세요.</p>
         </div>
@@ -130,19 +152,19 @@ export default function Settings() {
             {workoutsError}
           </p>
         ) : (
-          <dl>
-            <dt>동기화된 활동 수</dt>
-            <dd>{number(stravaWorkouts.length)}개</dd>
-            <dt>가장 최근 활동 날짜</dt>
-            <dd>{latestActivityDate || '활동 기록이 없습니다.'}</dd>
-            <dt>총 거리</dt>
-            <dd>{number(totalDistance)} km</dd>
-          </dl>
+          <div className="mt-6 grid gap-5 sm:grid-cols-3">
+            <Metric label="???? ??" value={number(stravaWorkouts.length)} unit="?" />
+            <Metric label="? ??" value={number(totalDistance)} unit="km" />
+            <div>
+              <p className="font-label-caps text-label-caps text-on-surface-variant">?? ??</p>
+              <p className="mt-3 font-metric-md">{latestActivityDate || '?? ?? ??'}</p>
+            </div>
+          </div>
         )}
       </section>
-      <div className="settings-grid">
+      <div className="grid min-w-0 gap-5 xl:grid-cols-2">
         <section className="panel">
-          <div className="card-heading">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <h2>Strava 연동</h2>
             {status && <span className="badge">{status.connected ? '연결됨' : '연결 안 됨'}</span>}
           </div>
@@ -158,7 +180,7 @@ export default function Settings() {
               )}
               {status.connected ? (
                 <>
-                  <dl>
+                  <dl className="mt-5 grid gap-2 rounded-lg bg-surface-container-lowest p-4">
                     <dt>운동선수</dt>
                     <dd>{status.athlete_name || '이름 없음'}</dd>
                     <dt>마지막 동기화</dt>
@@ -169,15 +191,34 @@ export default function Settings() {
                     </dd>
                   </dl>
                   <div className="actions">
-                    <button disabled={busy || !status.configured} onClick={() => action('sync')}>
+                    <button
+                      className="button"
+                      disabled={busy || !status.configured}
+                      onClick={() => action('sync')}
+                    >
                       {busy ? '처리 중…' : '지금 동기화'}
                     </button>
                     <button
                       className="secondary"
                       disabled={busy || !status.configured}
-                      onClick={() => setConfirm(true)}
+                      onClick={() => setConfirm('disconnect')}
                     >
                       연결 해제
+                    </button>
+                  </div>
+                  {status.can_upload === false && (
+                    <p className="notice">??? ??? Strava? ???? ??? ??? ? ?? ????? (??? ?? ??)</p>
+                  )}
+                  <div className="mt-6 border-t border-surface-container-highest pt-5">
+                    <p className="mb-3 text-body-md text-on-surface-variant">
+                      ?? ??? ??? kudos? ?????. ??? ??? ?????.
+                    </p>
+                    <button
+                      className="secondary"
+                      disabled={busy || !status.configured}
+                      onClick={() => setConfirm('resync')}
+                    >
+                      Strava ?? ?? ????
                     </button>
                   </div>
                   {confirm && (
@@ -185,13 +226,17 @@ export default function Settings() {
                       message="Strava 연결을 해제할까요? 가져온 운동 기록은 유지됩니다."
                       busy={busy}
                       confirmLabel="연결 해제"
-                      onConfirm={() => action('disconnect')}
+                      onConfirm={() => action(confirm)}
                       onCancel={() => setConfirm(false)}
                     />
                   )}
                 </>
               ) : (
-                <button disabled={busy || !status.configured} onClick={() => action('connect')}>
+                <button
+                  className="button"
+                  disabled={busy || !status.configured}
+                  onClick={() => action('connect')}
+                >
                   {busy ? '연결 중…' : 'Strava 연결'}
                 </button>
               )}
@@ -226,7 +271,7 @@ export default function Settings() {
                 }}
               />
             </label>
-            <button disabled={!file || csvBusy}>
+            <button type="submit" disabled={!file || csvBusy}>
               {csvBusy ? '가져오는 중…' : '기록 가져오기'}
             </button>
           </form>

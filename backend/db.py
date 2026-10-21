@@ -57,10 +57,21 @@ class Database:
             if len(page) < PAGE_SIZE:
                 return rows
 
-    def insert_workouts(self, rows, skip_duplicates=False):
-        """여러 행을 한 번에 넣는다. skip_duplicates면 이미 있는 (source, external_id)는 건너뛴다."""
+    def get_workout(self, workout_id):
+        rows = self._request("GET", "workouts", params={"select": "*", "id": f"eq.{workout_id}"})
+        return rows[0] if rows else None
+
+    def insert_workouts(self, rows, skip_duplicates=False, update_existing=False):
+        """여러 행을 한 번에 넣는다.
+        skip_duplicates: 이미 있는 (source, external_id)는 건너뛴다.
+        update_existing: 이미 있으면 보낸 칸만 새 값으로 바꾼다 (Strava 다시 가져오기용).
+        """
         if not rows:
             return []
+        if update_existing:
+            return self._request(
+                "POST", "workouts", params={"on_conflict": "user_id,source,external_id"},
+                json=rows, prefer="resolution=merge-duplicates,return=representation")
         if skip_duplicates:
             return self._request(
                 "POST", "workouts", params={"on_conflict": "user_id,source,external_id"},

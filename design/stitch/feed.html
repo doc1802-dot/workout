@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ko"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;600;700;800&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "inverse-on-surface": "#2c3139", "on-secondary": "#283500", "tertiary-container": "#00a572", "secondary-container": "#c3f400", "surface-tint": "#ffb59f", "on-tertiary-fixed": "#002113", "primary-fixed": "#ffdbd0", "surface-container-high": "#252a33", "tertiary-fixed": "#6ffbbe", "error": "#ffb4ab", "on-secondary-fixed-variant": "#3c4d00", "on-tertiary-container": "#00311f", "outline": "#ac897e", "tertiary-fixed-dim": "#4edea3", "on-tertiary": "#003824", "surface-dim": "#0f141c", "secondary-fixed-dim": "#abd600", "surface": "#0f141c", "on-primary-fixed-variant": "#852400", "error-container": "#93000a", "on-error": "#690005", "on-primary-fixed": "#3a0a00", "primary-fixed-dim": "#ffb59f", "on-secondary-fixed": "#161e00", "on-secondary-container": "#556d00", "surface-container-low": "#171c24", "surface-bright": "#343942", "inverse-surface": "#dee2ee", "secondary-fixed": "#c3f400", "background": "#0f141c", "secondary": "#ffffff", "on-background": "#dee2ee", "primary": "#ffb59f", "on-primary-container": "#531300", "outline-variant": "#5c4038", "primary-container": "#ff571b", "surface-container-lowest": "#090e16", "on-surface-variant": "#e6beb2", "surface-container": "#1b2028", "on-tertiary-fixed-variant": "#005236", "on-surface": "#dee2ee", "surface-container-highest": "#30353e", "on-primary": "#5e1700", "surface-variant": "#30353e", "tertiary": "#4edea3", "on-error-container": "#ffdad6", "inverse-primary": "#ae3100" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "space-md": "0.75rem", "space-xl": "2rem", "gutter": "0.75rem", "margin-desktop": "2.5rem", "space-xs": "0.25rem", "gutter-md": "1rem", "margin": "1rem", "space-sm": "0.5rem", "margin-tablet": "1.5rem", "space-lg": "1.25rem" }, "fontFamily": { "headline-md": [ "Space Grotesk" ], "body-lg": [ "Hanken Grotesk" ], "display-hero": [ "Space Grotesk" ], "metric-lg": [ "JetBrains Mono" ], "headline-lg": [ "Space Grotesk" ], "label-caps": [ "JetBrains Mono" ], "body-sm": [ "Hanken Grotesk" ], "body-md": [ "Hanken Grotesk" ], "label-sensor": [ "JetBrains Mono" ], "display-hero-mobile": [ "Space Grotesk" ], "metric-huge": [ "JetBrains Mono" ], "metric-md": [ "JetBrains Mono" ], "headline-sm": [ "Space Grotesk" ] }, "fontSize": { "headline-md": [ "24px", { "lineHeight": "30px", "letterSpacing": "-0.01em", "fontWeight": "600" } ], "body-lg": [ "16px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "500" } ], "display-hero": [ "56px", { "lineHeight": "60px", "letterSpacing": "-0.04em", "fontWeight": "700" } ], "metric-lg": [ "28px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700" } ], "headline-lg": [ "32px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" } ], "label-caps": [ "11px", { "lineHeight": "14px", "letterSpacing": "0.08em", "fontWeight": "600" } ], "body-sm": [ "12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "400" } ], "body-md": [ "14px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400" } ], "label-sensor": [ "9px", { "lineHeight": "12px", "letterSpacing": "0.1em", "fontWeight": "700" } ], "display-hero-mobile": [ "40px", { "lineHeight": "44px", "letterSpacing": "-0.03em", "fontWeight": "700" } ], "metric-huge": [ "48px", { "lineHeight": "52px", "letterSpacing": "-0.04em", "fontWeight": "800" } ], "metric-md": [ "20px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "600" } ], "headline-sm": [ "20px", { "lineHeight": "26px", "letterSpacing": "0em", "fontWeight": "600" } ] } } } };</script></head><body class="bg-surface font-body-md text-on-surface antialiased selection:bg-primary-container selection:text-white"><header class="fixed top-0 left-0 right-0 h-16 z-50 bg-surface-container-lowest/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.35)]"><div class="h-16 w-full px-margin-desktop flex items-center justify-between"><div class="flex items-center gap-space-xl"><a class="flex items-center gap-space-sm group" data-path="dashboard-feed" href="#"><div class="w-9 h-9 rounded-lg bg-primary-container flex items-center justify-center text-white shadow-[0_0_16px_rgba(255,87,27,0.35)]"><span class="material-symbols-outlined text-[22px]">bolt</span></div><div class="flex flex-col"><span class="font-headline-sm text-headline-sm tracking-tight text-white font-bold leading-none">PACE<span class="text-primary-container">HUB</span></span><span class="font-label-sensor text-label-sensor text-on-surface-variant tracking-widest uppercase">Telemetry Core</span></div></a><div class="h-6 w-px bg-surface-container-highest hidden lg:block"></div><div class="hidden md:flex items-center gap-space-sm px-space-md py-1 rounded-full bg-surface-container-high border border-outline-variant/30"><div class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></div><span class="font-label-caps text-label-caps text-on-surface uppercase">Strava Sync Live</span><span class="material-symbols-outlined text-primary text-[14px]">sync_saved_locally</span></div></div><nav class="hidden xl:flex items-center gap-space-sm bg-surface-container-low px-space-xs py-1 rounded-full border border-surface-container-high" data-active-classes="bg-primary-container text-white font-bold rounded-lg shadow-[0_0_16px_rgba(255,87,27,0.25)]"><a aria-current="page" class="px-space-md py-1.5 transition-all bg-primary-container text-white font-bold rounded-lg shadow-[0_0_16px_rgba(255,87,27,0.25)]" data-path="dashboard-feed" href="#">피드 / Feed</a><a class="px-space-md py-1.5 rounded-full font-body-md text-body-md text-on-surface-variant hover:text-white hover:bg-surface-container-high transition-all" data-path="activity-analytics" href="#">활동 분석 / Analytics</a><a class="px-space-md py-1.5 rounded-full font-body-md text-body-md text-on-surface-variant hover:text-white hover:bg-surface-container-high transition-all" data-path="live-telemetry-hud" href="#">실시간 HUD / Live Tracker</a><a class="px-space-md py-1.5 rounded-full font-body-md text-body-md text-on-surface-variant hover:text-white hover:bg-surface-container-high transition-all" data-path="gear-diagnostics-stats" href="#">마이 통계 &amp; 기어 / My Gear &amp; Stats</a><a class="px-space-md py-1.5 rounded-full font-body-md text-body-md text-on-surface-variant hover:text-white hover:bg-surface-container-high transition-all" data-path="segment-leaderboard" href="#">세그먼트 / Segments</a></nav><div class="flex items-center gap-space-md"><div class="hidden sm:flex items-center bg-surface-container-low rounded-lg px-space-md py-1.5 border border-surface-container-high focus-within:border-primary-container transition-all"><span class="material-symbols-outlined text-on-surface-variant text-[18px] mr-2">search</span><input class="bg-transparent text-body-sm font-body-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none w-44 lg:w-56 font-mono" placeholder="세그먼트, 활동 또는 루트 검색..." type="text"/></div><button class="w-9 h-9 rounded-lg bg-surface-container-low hover:bg-surface-container-high text-on-surface-variant hover:text-white flex items-center justify-center transition-all relative"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-secondary-fixed"></span></button><div class="h-6 w-px bg-surface-container-highest"></div><div class="flex items-center gap-space-sm pl-1"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><div class="hidden 2xl:flex flex-col text-left"><span class="font-body-sm text-body-sm font-bold text-white leading-none">Alex Park</span><span class="font-label-sensor text-label-sensor text-secondary-fixed leading-tight uppercase">PRO ATHLETE</span></div><span class="material-symbols-outlined text-on-surface-variant text-[16px] hidden sm:block">expand_more</span></div></div></div></header><aside class="fixed left-0 top-16 bottom-0 w-64 bg-surface-container-low z-40 flex flex-col justify-between py-space-md border-r border-surface-container-high/40 overflow-y-auto"><div class="flex flex-col gap-space-md px-space-sm"><div class="px-space-md py-space-xs"><span class="font-label-sensor text-label-sensor uppercase text-on-surface-variant tracking-widest">Telemetry Modes</span></div><nav class="flex flex-col gap-1" data-active-classes="bg-surface-container-high text-primary-container font-semibold rounded-lg border-l-4 border-primary-container shadow-[0_0_12px_rgba(255,87,27,0.15)]"><a aria-current="page" class="flex items-center gap-space-md px-space-md py-2.5 transition-all bg-surface-container-high text-primary-container font-semibold rounded-lg border-l-4 border-primary-container shadow-[0_0_12px_rgba(255,87,27,0.15)]" data-path="dashboard-feed" href="#"><span class="material-symbols-outlined text-[20px]">dynamic_feed</span><span class="font-body-md text-body-md">종합 피드</span></a><a class="flex items-center gap-space-md px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-white transition-all" data-path="activity-analytics" href="#"><span class="material-symbols-outlined text-[20px]">query_stats</span><span class="font-body-md text-body-md">퍼포먼스 분석</span></a><a class="flex items-center gap-space-md px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-white transition-all" data-path="live-telemetry-hud" href="#"><span class="material-symbols-outlined text-[20px] text-secondary-container">speed</span><span class="font-body-md text-body-md">라이브 HUD</span><span class="ml-auto font-label-sensor text-label-sensor bg-secondary-container/20 text-secondary-fixed px-1.5 py-0.5 rounded">ACTIVE</span></a><a class="flex items-center gap-space-md px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-white transition-all" data-path="gear-diagnostics-stats" href="#"><span class="material-symbols-outlined text-[20px]">directions_bike</span><span class="font-body-md text-body-md">기어 &amp; 통계</span></a><a class="flex items-center gap-space-md px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-white transition-all" data-path="segment-leaderboard" href="#"><span class="material-symbols-outlined text-[20px]">military_tech</span><span class="font-body-md text-body-md">세그먼트 랭킹</span></a><a class="flex items-center gap-space-md px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-white transition-all" data-path="route-planner" href="#"><span class="material-symbols-outlined text-[20px]">alt_route</span><span class="font-body-md text-body-md">루트 플래너</span></a></nav><div class="px-space-md pt-space-md py-space-xs"><span class="font-label-sensor text-label-sensor uppercase text-on-surface-variant tracking-widest">Hardware Links</span></div><div class="flex flex-col gap-1.5 px-space-xs"><div class="flex items-center justify-between px-space-md py-2 rounded-lg bg-surface-container-lowest border border-surface-container-high/60"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px] text-tertiary">sensors</span><span class="font-label-caps text-label-caps text-on-surface">Wahoo KICKR</span></div><span class="font-label-sensor text-label-sensor text-tertiary">ANT+ 100%</span></div><div class="flex items-center justify-between px-space-md py-2 rounded-lg bg-surface-container-lowest border border-surface-container-high/60"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px] text-tertiary">monitor_heart</span><span class="font-label-caps text-label-caps text-on-surface">Garmin HRM-Pro</span></div><span class="font-label-sensor text-label-sensor text-tertiary">BLE 142BPM</span></div></div></div><div class="px-space-sm"><div class="p-space-md rounded-xl bg-surface-container-lowest border border-primary-container/30"><div class="flex items-center justify-between mb-1"><span class="font-label-caps text-label-caps text-primary">FTP TARGET</span><span class="font-metric-md text-metric-md text-white font-bold">315<span class="text-body-sm font-normal text-on-surface-variant ml-1">W</span></span></div><div class="w-full bg-surface-container-highest h-1.5 rounded-full overflow-hidden"><div class="bg-primary-container h-full w-[84%]"></div></div><div class="flex justify-between items-center mt-2 text-on-surface-variant font-label-sensor text-label-sensor"><span>CTL: 78.4</span><span>TSB: +4</span></div></div></div></aside><div class="pl-64"><main class="w-full pt-16 bg-surface min-h-screen"><div class="flex flex-col w-full">
+<!-- Sub-Header / Control Strip -->
+<div class="w-full bg-surface-container-low px-margin-desktop py-space-md flex flex-wrap items-center justify-between gap-space-md shadow-md">
+<div class="flex items-center gap-space-sm flex-wrap">
+<button class="px-space-md py-1.5 rounded-full bg-primary-container text-white font-headline-sm text-body-sm shadow-[0_0_12px_rgba(255,87,27,0.3)] flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px]">stream</span>전체 활동
+      </button>
+<button class="px-space-md py-1.5 rounded-full bg-surface-container-high hover:bg-surface-bright text-on-surface-variant hover:text-white font-body-sm transition-all flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-primary-container">directions_bike</span>로드/MTB
+      </button>
+<button class="px-space-md py-1.5 rounded-full bg-surface-container-high hover:bg-surface-bright text-on-surface-variant hover:text-white font-body-sm transition-all flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-secondary-fixed">sprint</span>러닝 &amp; 마라톤
+      </button>
+<button class="px-space-md py-1.5 rounded-full bg-surface-container-high hover:bg-surface-bright text-on-surface-variant hover:text-white font-body-sm transition-all flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-tertiary">groups</span>크루 &amp; 클럽
+      </button>
+</div>
+<div class="flex items-center gap-space-md ml-auto">
+<div class="flex items-center gap-space-sm px-space-md py-1 rounded-full bg-surface-container-lowest">
+<div class="w-2 h-2 rounded-full bg-tertiary animate-ping"></div>
+<span class="font-label-sensor text-label-sensor text-on-surface-variant uppercase">최근 동기화: 3분 전 (Auto-Push)</span>
+</div>
+<button class="px-space-md py-2 rounded-lg bg-surface-container-high hover:bg-surface-bright text-white font-headline-sm text-body-sm flex items-center gap-2 shadow-sm transition-all active:scale-95" id="sync-strava-btn" onclick="triggerStravaSync()">
+<span class="material-symbols-outlined text-[18px] text-primary-container" id="sync-icon">sync</span>
+<span id="sync-text">스트라바 즉시 동기화</span>
+</button>
+<button class="px-space-md py-2 rounded-lg bg-primary-container text-white font-headline-sm text-body-sm flex items-center gap-2 shadow-[0_0_16px_rgba(255,87,27,0.35)] transition-all active:scale-95">
+<span class="material-symbols-outlined text-[18px]">upload_file</span>
+<span>활동 수동 업로드 (.FIT / .GPX)</span>
+</button>
+</div>
+</div>
+<!-- Main Feed & Telemetry Grid -->
+<div class="w-full px-margin-desktop py-space-xl grid grid-cols-1 xl:grid-cols-12 gap-space-xl">
+<!-- Left Main Stream (Col 8 / ~67%) -->
+<div class="xl:col-span-8 flex flex-col gap-space-xl">
+<!-- Quick Activity / Note Composer -->
+<div class="w-full bg-surface-container-low rounded-xl p-space-lg shadow-lg">
+<div class="flex items-start gap-space-md">
+<div class="w-11 h-11 rounded-full bg-primary-container/20 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary-container text-[24px]">account_circle</span>
+</div>
+<div class="flex-1 flex flex-col gap-space-sm">
+<textarea class="w-full bg-surface-container-lowest text-on-surface placeholder:text-on-surface-variant/50 font-body-md text-body-md rounded-lg p-space-md focus:outline-none resize-none" placeholder="오늘의 라이딩/러닝 세션 노트를 기록하거나 GPX 로그에 코멘트를 남겨보세요..." rows="2"></textarea>
+<div class="flex flex-wrap items-center justify-between pt-space-xs gap-space-sm">
+<div class="flex items-center gap-space-sm flex-wrap">
+<button class="flex items-center gap-1.5 px-space-md py-1 rounded-full bg-surface-container-high hover:bg-surface-bright text-on-surface-variant font-label-caps text-label-caps transition-all">
+<span class="material-symbols-outlined text-[16px] text-primary-container">photo_camera</span>사진 첨부
+                </button>
+<div class="flex items-center gap-1 px-space-md py-1 rounded-full bg-surface-container-high text-secondary-fixed font-label-caps text-label-caps">
+<span class="material-symbols-outlined text-[15px]">directions_bike</span>
+<span>Specialized Tarmac SL7 Pro</span>
+</div>
+<div class="flex items-center gap-1 px-space-md py-1 rounded-full bg-surface-container-high text-tertiary font-label-caps text-label-caps">
+<span class="material-symbols-outlined text-[15px]">thermostat</span>
+<span>14°C 맑음 (풍속 2.1m/s SE)</span>
+</div>
+</div>
+<button class="px-space-lg py-1.5 rounded-lg bg-surface-container-highest hover:bg-primary-container hover:text-white text-on-surface font-headline-sm text-body-sm transition-all ml-auto">
+                피드 게시
+              </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Feed Card 1: Featured Double Uphill Ride -->
+<article class="w-full bg-surface-container-low rounded-xl shadow-xl overflow-hidden flex flex-col">
+<!-- Top Metadata & Athlete Bio -->
+<div class="p-space-lg flex items-center justify-between bg-surface-container">
+<div class="flex items-center gap-space-md">
+<div class="relative">
+<div class="w-12 h-12 rounded-full bg-surface-container-highest overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Athletic portrait of Korean male pro cyclist Kim Tae-ho wearing aero aerodynamic helmet and sunglasses, natural crisp morning sunlight, high-contrast dark tones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAKrQtKStdgdL1OMzfq9d_uFTdhTgKLogrAFsmIXjE5NwAwf7-wgCYu5t64VV9hqgtkAa6bB6pOjw6-Xgq9aBHswaw6WXHpzdMIEPI05ZsyhtsW4Qtt_dYOR3L2x2KWB371eWjUnZc9aOMBLUrdu45K9so5W3yjAHkFZr84Fur0nEpIcvW4ozPOG97jSQqC_eNrExHw03wZnOreL-RBGa1QYe0Ww0udYQvNPSnsrjo6qt6zJeuHFX1GeQ"/>
+</div>
+<div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-primary-container flex items-center justify-center text-white shadow-sm">
+<span class="material-symbols-outlined text-[12px]">directions_bike</span>
+</div>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-sm">
+<span class="font-headline-sm text-headline-sm text-white">김태호</span>
+<span class="px-1.5 py-0.5 rounded bg-primary-container/20 text-primary font-label-sensor text-label-sensor uppercase">PRO CYCLIST</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant">• 오늘 오전 06:14</span>
+</div>
+<div class="flex items-center gap-space-sm mt-0.5">
+<span class="font-label-caps text-label-caps text-tertiary flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">verified</span>Strava Verified Telemetry
+                </span>
+<span class="text-on-surface-variant font-label-sensor text-label-sensor">| Wahoo ELEMNT BOLT v2 Synced</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-space-sm">
+<!-- Strava KOM Badge -->
+<div class="flex items-center gap-1 px-space-md py-1 rounded-full bg-secondary-fixed/15 text-secondary-fixed font-label-caps text-label-caps shadow-[0_0_12px_rgba(195,244,0,0.2)]">
+<span class="material-symbols-outlined text-[16px]">military_tech</span>
+<span>북악 스카이웨이 종합 4위 (KOM Top 10)</span>
+</div>
+<button class="w-8 h-8 rounded-lg bg-surface-container-high hover:bg-surface-bright text-on-surface-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Activity Title & Description -->
+<div class="px-space-lg pt-space-md pb-space-sm">
+<h2 class="font-headline-lg text-headline-lg text-white font-bold tracking-tight">남산-북악 더블 업힐 모닝 공복 라이딩 🚴💨</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">
+            기온 12도, 바람 잔잔해서 북악 초소 랩타임 어택 성공. 4분대 초반 유지하며 340W 피크 인터벌 기록. 내리막 노면 결빙 없이 컨디션 최고였습니다!
+          </p>
+</div>
+<!-- Map & Route Telemetry Hero Container -->
+<div class="relative w-full h-80 bg-surface-container-lowest overflow-hidden">
+<div class="w-full h-full bg-cover bg-center" data-location="Seoul Bukak Skyway, South Korea" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCLu34aJji0ZF6cX1VPb2Iu1DGLOfcDr1zk3JVY-gXJ_cS8gDM5WmGxKjKQBG5l0wSF5dpPZWh-y_SB1-DF8kzRbgRN_WzxnLbS8Tvm2vZa3ioDbCE2Kgx63-Cckpv6_EVhbo3nRprOfpIcopWXkrmDx_JGeRer2eMdGrS3O1DLhaFicK7fXfJUiGJ1TFe-AfNNpWcmpwL7EJtmnwOq3uUdtXwlbt6UHHxym9zA11o8sDMrRQmpHi78cg')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest/30 to-transparent"></div>
+<!-- Overlaid GPS Path Trace & Elevation Gradient (SVG Canvas) -->
+<svg class="absolute inset-0 w-full h-full pointer-events-none" fill="none" preserveaspectratio="none" viewbox="0 0 800 320">
+<defs>
+<lineargradient id="strava-path-glow" x1="0" x2="1" y1="0" y2="0">
+<stop offset="0%" stop-color="#ff571b"></stop>
+<stop offset="50%" stop-color="#c3f400"></stop>
+<stop offset="100%" stop-color="#ff571b"></stop>
+</lineargradient>
+<lineargradient id="elevation-fill-grad" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#ff571b" stop-opacity="0.35"></stop>
+<stop offset="100%" stop-color="#ff571b" stop-opacity="0"></stop>
+</lineargradient>
+</defs>
+<!-- Elevation Profile Sparkline on Floor -->
+<path d="M 0 310 Q 90 300 160 260 T 320 180 T 450 280 T 580 150 T 720 230 L 800 290 L 800 320 L 0 320 Z" fill="url(#elevation-fill-grad)"></path>
+<path d="M 0 310 Q 90 300 160 260 T 320 180 T 450 280 T 580 150 T 720 230 L 800 290" stroke="#ff571b" stroke-linecap="round" stroke-width="2.5"></path>
+<!-- Live Segment Beacon Points -->
+<circle class="animate-pulse" cx="320" cy="180" fill="#c3f400" r="6"></circle>
+<circle cx="580" cy="150" fill="#ff571b" r="7"></circle>
+</svg>
+<!-- Floating Map HUD Widgets -->
+<div class="absolute top-space-md left-space-md flex flex-col gap-1.5">
+<span class="px-space-md py-1 rounded bg-surface-container-lowest/90 backdrop-blur-md font-label-caps text-label-caps text-secondary-fixed flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[15px]">terrain</span>북악 팔각정 정상 고도: 342m
+            </span>
+<span class="px-space-md py-1 rounded bg-surface-container-lowest/90 backdrop-blur-md font-label-caps text-label-caps text-primary flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[15px]">electric_bolt</span>최대 파워: 610W
+            </span>
+</div>
+<div class="absolute bottom-space-md right-space-md flex items-center gap-space-sm">
+<a class="px-space-md py-1.5 rounded-lg bg-surface-container-high/90 hover:bg-surface-bright text-white backdrop-blur-md font-label-caps text-label-caps flex items-center gap-1.5 transition-all" href="#">
+<span class="material-symbols-outlined text-[16px]">download</span>GPX 다운로드
+            </a>
+<button class="px-space-md py-1.5 rounded-lg bg-surface-container-high/90 hover:bg-surface-bright text-white backdrop-blur-md font-label-caps text-label-caps flex items-center gap-1.5 transition-all">
+<span class="material-symbols-outlined text-[16px]">map</span>풀스크린 지도
+            </button>
+</div>
+</div>
+<!-- Cockpit High-Glance Telemetry Grid (6 Metrics) -->
+<div class="p-space-lg grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-space-sm bg-surface-container">
+<div class="bg-surface-container-lowest p-space-md rounded-lg flex flex-col">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">거리 Distance</span>
+<span class="font-metric-lg text-metric-lg text-white font-bold mt-1">42.8<span class="font-body-sm text-body-sm text-on-surface-variant ml-0.5">km</span></span>
+</div>
+<div class="bg-surface-container-lowest p-space-md rounded-lg flex flex-col">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">소요 시간 Time</span>
+<span class="font-metric-lg text-metric-lg text-white font-bold mt-1">1:42:00</span>
+</div>
+<div class="bg-surface-container-lowest p-space-md rounded-lg flex flex-col">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">평균 속도 Avg Spd</span>
+<span class="font-metric-lg text-metric-lg text-secondary-fixed font-bold mt-1">25.1<span class="font-body-sm text-body-sm text-on-surface-variant ml-0.5">km/h</span></span>
+</div>
+<div class="bg-surface-container-lowest p-space-md rounded-lg flex flex-col">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">상승 고도 Elev Gain</span>
+<span class="font-metric-lg text-metric-lg text-primary font-bold mt-1">680<span class="font-body-sm text-body-sm text-on-surface-variant ml-0.5">m</span></span>
+</div>
+<div class="bg-surface-container-lowest p-space-md rounded-lg flex flex-col">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">평균 파워 Avg Pwr</span>
+<span class="font-metric-lg text-metric-lg text-white font-bold mt-1">240<span class="font-body-sm text-body-sm text-on-surface-variant ml-0.5">W</span></span>
+</div>
+<div class="bg-surface-container-lowest p-space-md rounded-lg flex flex-col">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">케이던스 Cadence</span>
+<span class="font-metric-lg text-metric-lg text-tertiary font-bold mt-1">84<span class="font-body-sm text-body-sm text-on-surface-variant ml-0.5">rpm</span></span>
+</div>
+</div>
+<!-- Social Action & Kudos Bar -->
+<div class="px-space-lg py-space-md flex flex-wrap items-center justify-between gap-space-md bg-surface-container-low">
+<div class="flex items-center gap-space-md">
+<!-- Kudos Toggle Button -->
+<button class="px-space-lg py-1.5 rounded-full bg-surface-container-high hover:bg-surface-bright text-white font-headline-sm text-body-sm flex items-center gap-2 transition-all active:scale-95 group" id="kudos-btn-1" onclick="toggleKudos('kudos-btn-1', 'kudos-count-1')">
+<span class="material-symbols-outlined text-[20px] text-primary-container group-hover:scale-125 transition-transform" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+<span>Kudos</span>
+<span class="font-metric-md text-body-md text-primary font-bold ml-1" id="kudos-count-1">48</span>
+</button>
+<!-- Athlete Reaction Avatars -->
+<div class="flex items-center -space-x-2">
+<div class="w-7 h-7 rounded-full bg-surface-bright flex items-center justify-center text-label-sensor font-bold text-white shadow-sm ring-2 ring-surface">MJ</div>
+<div class="w-7 h-7 rounded-full bg-primary flex items-center justify-center text-label-sensor font-bold text-on-primary shadow-sm ring-2 ring-surface">SY</div>
+<div class="w-7 h-7 rounded-full bg-tertiary flex items-center justify-center text-label-sensor font-bold text-on-tertiary shadow-sm ring-2 ring-surface">DH</div>
+<span class="font-label-caps text-label-caps text-on-surface-variant pl-3">외 45명이 리스펙을 보냈습니다</span>
+</div>
+</div>
+<div class="flex items-center gap-space-sm text-on-surface-variant">
+<button class="flex items-center gap-1.5 font-label-caps text-label-caps hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[18px]">chat_bubble</span>
+<span>댓글 12</span>
+</button>
+<span class="text-surface-container-highest">•</span>
+<button class="flex items-center gap-1.5 font-label-caps text-label-caps hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[18px]">share</span>
+<span>공유</span>
+</button>
+</div>
+</div>
+<!-- Inline Comments Preview Drawer -->
+<div class="px-space-lg py-space-md bg-surface-container-lowest flex flex-col gap-space-sm">
+<div class="flex items-start gap-space-sm">
+<span class="font-body-sm text-body-sm font-bold text-secondary-fixed shrink-0">박민준:</span>
+<span class="font-body-sm text-body-sm text-on-surface">북악 초소 기록 미쳤네요 형님! 저도 내일 아침 리벤지 갑니다 🔥</span>
+</div>
+<div class="flex items-start gap-space-sm">
+<span class="font-body-sm text-body-sm font-bold text-primary shrink-0">최서연:</span>
+<span class="font-body-sm text-body-sm text-on-surface">와 평균 파워 240W 실화인가요... 기어비 뭐 쓰셨나요?</span>
+</div>
+</div>
+</article>
+<!-- Feed Card 2: Runner PR Session -->
+<article class="w-full bg-surface-container-low rounded-xl shadow-xl overflow-hidden flex flex-col">
+<!-- Top Metadata & Athlete Bio -->
+<div class="p-space-lg flex items-center justify-between bg-surface-container">
+<div class="flex items-center gap-space-md">
+<div class="relative">
+<div class="w-12 h-12 rounded-full bg-surface-container-highest overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Close up athletic dynamic portrait of Korean female marathon runner Lee Ji-eun tying sports hairband, athletic dark high contrast aesthetic, sweaty and focused" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVgw0mH_Q9zzPoqhW5835yoWeTuab0Nzc00MCVnpmQi9WFx-H9c_tpyc3yPcCEOpQ64JrLY6vQyBWNFbvYcgrWYOgH5K1MfR18bDUd3jNvxeylIYIqPEn9wfqSwWyY6JM9LpOxyMNuPiJIjV0GZurqQcVr4HjTzmgWR-5hJYDF-bNMY9emdGvszLiu316E6tSWUeJPJIqv_w9LuvC26tThr5X4OT4Kuq_-Xoa9CcgL_zurxL8zyVDChg"/>
+</div>
+<div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-secondary-fixed flex items-center justify-center text-on-secondary shadow-sm">
+<span class="material-symbols-outlined text-[12px]">sprint</span>
+</div>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-sm">
+<span class="font-headline-sm text-headline-sm text-white">이지은</span>
+<span class="px-1.5 py-0.5 rounded bg-secondary-fixed/20 text-secondary-fixed font-label-sensor text-label-sensor uppercase">SUB-50 CLUB</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant">• 오늘 오전 07:45</span>
+</div>
+<div class="flex items-center gap-space-sm mt-0.5">
+<span class="font-label-caps text-label-caps text-tertiary flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">watch</span>Garmin Forerunner 965 Synced
+                </span>
+<span class="text-on-surface-variant font-label-sensor text-label-sensor">| 광화문 러닝 크루 (GRC)</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-space-sm">
+<!-- PR Banner -->
+<div class="flex items-center gap-1.5 px-space-md py-1 rounded-full bg-primary-container text-white font-label-caps text-label-caps shadow-[0_0_16px_rgba(255,87,27,0.35)]">
+<span class="material-symbols-outlined text-[16px]">workspace_premium</span>
+<span>10K 개인 최고 기록 (PR 달성!)</span>
+</div>
+</div>
+</div>
+<!-- Activity Title & Description -->
+<div class="px-space-lg pt-space-md pb-space-sm">
+<h2 class="font-headline-lg text-headline-lg text-white font-bold tracking-tight">한강 잠원-반포 모닝 10K 빌드업 페이스런 🏃‍♀️🔥</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">
+            첫 3km는 4:40으로 몸 풀고 마지막 2km는 3:55까지 빌드업 성공. 드디어 50분 벽 돌파했습니다! 알파플라이3 쿠션 탄성 덕분에 종아리 피로도 거의 제로.
+          </p>
+</div>
+<!-- Running Telemetry Matrix (5 Metrics) -->
+<div class="px-space-lg py-space-md grid grid-cols-2 md:grid-cols-5 gap-space-sm bg-surface-container">
+<div class="bg-surface-container-lowest p-space-md rounded-lg flex flex-col">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">거리 Distance</span>
+<span class="font-metric-lg text-metric-lg text-white font-bold mt-1">10.02<span class="font-body-sm text-body-sm text-on-surface-variant ml-0.5">km</span></span>
+</div>
+<div class="bg-surface-container-lowest p-space-md rounded-lg flex flex-col">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">평균 페이스 Avg Pace</span>
+<span class="font-metric-lg text-metric-lg text-secondary-fixed font-bold mt-1">4'22"<span class="font-body-sm text-body-sm text-on-surface-variant ml-0.5">/km</span></span>
+</div>
+<div class="bg-surface-container-lowest p-space-md rounded-lg flex flex-col">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">시간 Duration</span>
+<span class="font-metric-lg text-metric-lg text-white font-bold mt-1">51:20</span>
+</div>
+<div class="bg-surface-container-lowest p-space-md rounded-lg flex flex-col">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">평균 심박 Avg HR</span>
+<span class="font-metric-lg text-metric-lg text-error font-bold mt-1">168<span class="font-body-sm text-body-sm text-on-surface-variant ml-0.5">bpm</span></span>
+</div>
+<div class="bg-surface-container-lowest p-space-md rounded-lg flex flex-col">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">케이던스 Cadence</span>
+<span class="font-metric-lg text-metric-lg text-tertiary font-bold mt-1">182<span class="font-body-sm text-body-sm text-on-surface-variant ml-0.5">spm</span></span>
+</div>
+</div>
+<!-- 10K Splits Timeline Chart Component -->
+<div class="p-space-lg bg-surface-container-lowest flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-secondary-fixed">equalizer</span>구간별 1km 스플릿 페이스 타임라인
+            </span>
+<span class="font-label-sensor text-label-sensor text-tertiary">네거티브 스플릿 완성 (-18s 차이)</span>
+</div>
+<div class="grid grid-cols-10 gap-1.5 pt-space-xs">
+<!-- 1km -->
+<div class="flex flex-col items-center gap-1">
+<div class="w-full bg-surface-container-high rounded-t h-16 flex items-end justify-center p-1">
+<div class="w-full bg-secondary-fixed-dim/60 rounded-t h-[65%]"></div>
+</div>
+<span class="font-label-sensor text-label-sensor text-on-surface-variant">1K</span>
+<span class="font-label-sensor text-label-sensor text-white">4:42</span>
+</div>
+<!-- 2km -->
+<div class="flex flex-col items-center gap-1">
+<div class="w-full bg-surface-container-high rounded-t h-16 flex items-end justify-center p-1">
+<div class="w-full bg-secondary-fixed-dim/70 rounded-t h-[70%]"></div>
+</div>
+<span class="font-label-sensor text-label-sensor text-on-surface-variant">2K</span>
+<span class="font-label-sensor text-label-sensor text-white">4:38</span>
+</div>
+<!-- 3km -->
+<div class="flex flex-col items-center gap-1">
+<div class="w-full bg-surface-container-high rounded-t h-16 flex items-end justify-center p-1">
+<div class="w-full bg-secondary-fixed/70 rounded-t h-[75%]"></div>
+</div>
+<span class="font-label-sensor text-label-sensor text-on-surface-variant">3K</span>
+<span class="font-label-sensor text-label-sensor text-white">4:30</span>
+</div>
+<!-- 4km -->
+<div class="flex flex-col items-center gap-1">
+<div class="w-full bg-surface-container-high rounded-t h-16 flex items-end justify-center p-1">
+<div class="w-full bg-secondary-fixed/80 rounded-t h-[78%]"></div>
+</div>
+<span class="font-label-sensor text-label-sensor text-on-surface-variant">4K</span>
+<span class="font-label-sensor text-label-sensor text-white">4:28</span>
+</div>
+<!-- 5km -->
+<div class="flex flex-col items-center gap-1">
+<div class="w-full bg-surface-container-high rounded-t h-16 flex items-end justify-center p-1">
+<div class="w-full bg-secondary-fixed rounded-t h-[82%]"></div>
+</div>
+<span class="font-label-sensor text-label-sensor text-on-surface-variant">5K</span>
+<span class="font-label-sensor text-label-sensor text-white">4:24</span>
+</div>
+<!-- 6km -->
+<div class="flex flex-col items-center gap-1">
+<div class="w-full bg-surface-container-high rounded-t h-16 flex items-end justify-center p-1">
+<div class="w-full bg-secondary-fixed rounded-t h-[84%]"></div>
+</div>
+<span class="font-label-sensor text-label-sensor text-on-surface-variant">6K</span>
+<span class="font-label-sensor text-label-sensor text-white">4:20</span>
+</div>
+<!-- 7km -->
+<div class="flex flex-col items-center gap-1">
+<div class="w-full bg-surface-container-high rounded-t h-16 flex items-end justify-center p-1">
+<div class="w-full bg-secondary-fixed rounded-t h-[86%]"></div>
+</div>
+<span class="font-label-sensor text-label-sensor text-on-surface-variant">7K</span>
+<span class="font-label-sensor text-label-sensor text-white">4:18</span>
+</div>
+<!-- 8km -->
+<div class="flex flex-col items-center gap-1">
+<div class="w-full bg-surface-container-high rounded-t h-16 flex items-end justify-center p-1">
+<div class="w-full bg-primary-container/80 rounded-t h-[90%]"></div>
+</div>
+<span class="font-label-sensor text-label-sensor text-on-surface-variant">8K</span>
+<span class="font-label-sensor text-label-sensor text-white">4:10</span>
+</div>
+<!-- 9km -->
+<div class="flex flex-col items-center gap-1">
+<div class="w-full bg-surface-container-high rounded-t h-16 flex items-end justify-center p-1">
+<div class="w-full bg-primary-container rounded-t h-[95%]"></div>
+</div>
+<span class="font-label-sensor text-label-sensor text-on-surface-variant">9K</span>
+<span class="font-label-sensor text-label-sensor text-white">4:02</span>
+</div>
+<!-- 10km (Fastest Split) -->
+<div class="flex flex-col items-center gap-1">
+<div class="w-full bg-surface-container-high rounded-t h-16 flex items-end justify-center p-1">
+<div class="w-full bg-primary-container rounded-t h-full shadow-[0_0_8px_rgba(255,87,27,0.5)]"></div>
+</div>
+<span class="font-label-sensor text-label-sensor text-primary font-bold">10K</span>
+<span class="font-label-sensor text-label-sensor text-primary font-bold">3:55</span>
+</div>
+</div>
+</div>
+<!-- Social Action Bar -->
+<div class="px-space-lg py-space-md flex flex-wrap items-center justify-between gap-space-md bg-surface-container-low">
+<div class="flex items-center gap-space-md">
+<button class="px-space-lg py-1.5 rounded-full bg-surface-container-high hover:bg-surface-bright text-white font-headline-sm text-body-sm flex items-center gap-2 transition-all active:scale-95 group" id="kudos-btn-2" onclick="toggleKudos('kudos-btn-2', 'kudos-count-2')">
+<span class="material-symbols-outlined text-[20px] text-primary-container group-hover:scale-125 transition-transform" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+<span>Kudos</span>
+<span class="font-metric-md text-body-md text-primary font-bold ml-1" id="kudos-count-2">94</span>
+</button>
+<span class="font-label-caps text-label-caps text-on-surface-variant">강남 러너스 23명 및 클럽 멤버 71명이 축하했습니다</span>
+</div>
+<div class="flex items-center gap-space-sm text-on-surface-variant">
+<button class="flex items-center gap-1.5 font-label-caps text-label-caps hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[18px]">chat_bubble</span>
+<span>댓글 34</span>
+</button>
+<span class="text-surface-container-highest">•</span>
+<button class="flex items-center gap-1.5 font-label-caps text-label-caps hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[18px]">share</span>
+<span>공유</span>
+</button>
+</div>
+</div>
+</article>
+</div>
+<!-- Right Sidebar Telemetry & Segments (Col 4 / ~33%) -->
+<aside class="xl:col-span-4 flex flex-col gap-space-xl">
+<!-- Strava Weekly Club Challenge Widget -->
+<div class="w-full bg-surface-container-low rounded-xl p-space-lg shadow-lg flex flex-col">
+<div class="flex items-center justify-between mb-space-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container text-[22px]">trophy</span>
+<span class="font-label-caps text-label-caps text-on-surface uppercase tracking-wider font-bold">크루 챌린지 2025</span>
+</div>
+<span class="px-2 py-0.5 rounded bg-tertiary/15 text-tertiary font-label-sensor text-label-sensor font-bold">D-5 종료</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-white font-bold">서울 즈위프트 &amp; 야외 누적 15,000km</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">PACE HUB SEOUL 크루 누적 거리 달성 미션</p>
+<!-- Progress Dial / Ring Visualizer -->
+<div class="flex items-center gap-space-lg my-space-md p-space-md rounded-lg bg-surface-container-lowest">
+<div class="relative w-24 h-24 shrink-0 flex items-center justify-center">
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 36 36">
+<!-- Background Circle -->
+<path class="text-surface-container-highest stroke-current" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-width="3.5"></path>
+<!-- Progress Circle 82% -->
+<path class="text-secondary-fixed stroke-current" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-dasharray="82, 100" stroke-linecap="round" stroke-width="3.5"></path>
+</svg>
+<div class="absolute flex flex-col items-center justify-center text-center">
+<span class="font-metric-md text-metric-md font-bold text-white leading-none">82<span class="text-secondary-fixed text-label-caps">%</span></span>
+<span class="font-label-sensor text-label-sensor text-on-surface-variant mt-0.5">달성률</span>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<span class="font-metric-md text-metric-md text-white font-bold">12,300 <span class="font-body-sm text-body-sm font-normal text-on-surface-variant">/ 15,000 km</span></span>
+<span class="font-body-sm text-body-sm text-secondary-fixed flex items-center gap-1 font-semibold">
+<span class="material-symbols-outlined text-[16px]">stars</span>내 기여 순위: 3위 (428km 기여)
+            </span>
+<span class="font-label-sensor text-label-sensor text-on-surface-variant">현재 크루 활동 인원: 48명 참여 중</span>
+</div>
+</div>
+<button class="w-full py-2 rounded-lg bg-surface-container-high hover:bg-surface-bright text-white font-headline-sm text-body-sm transition-all text-center">
+          클럽 챌린지 상세 및 순위표 보기
+        </button>
+</div>
+<!-- Trending Segments in Seoul/Gyeonggi -->
+<div class="w-full bg-surface-container-low rounded-xl p-space-lg shadow-lg flex flex-col">
+<div class="flex items-center justify-between mb-space-md">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary-fixed text-[22px]">timer</span>
+<span class="font-label-caps text-label-caps text-on-surface uppercase tracking-wider font-bold">실시간 인기 세그먼트 (SEOUL)</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">tune</span>
+</div>
+<div class="flex flex-col gap-space-md">
+<!-- Segment 1: Bukak -->
+<div class="p-space-md rounded-lg bg-surface-container-lowest flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-body-md text-white font-bold flex items-center gap-1">
+<span class="text-primary-container">⛰️</span> 북악 스카이웨이 (초소-팔각정)
+              </span>
+<span class="font-label-sensor text-label-sensor text-secondary-fixed bg-secondary-fixed/10 px-1.5 py-0.5 rounded">2.5km / 6.8%</span>
+</div>
+<div class="flex items-center justify-between text-body-sm mt-1">
+<div class="flex flex-col">
+<span class="font-label-sensor text-label-sensor text-on-surface-variant uppercase">Current KOM Record</span>
+<span class="font-metric-md text-metric-md text-secondary-fixed font-bold">06:41 <span class="text-body-sm font-normal text-on-surface-variant">(31.8km/h)</span></span>
+</div>
+<div class="flex flex-col text-right">
+<span class="font-label-sensor text-label-sensor text-on-surface-variant uppercase">My Best PR</span>
+<span class="font-metric-md text-metric-md text-primary font-bold">07:29 <span class="text-label-caps text-error font-semibold">+48s</span></span>
+</div>
+</div>
+</div>
+<!-- Segment 2: Namsan -->
+<div class="p-space-md rounded-lg bg-surface-container-lowest flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-body-md text-white font-bold flex items-center gap-1">
+<span class="text-primary-container">⚡</span> 남산 국립극장 - 서울타워 업힐
+              </span>
+<span class="font-label-sensor text-label-sensor text-secondary-fixed bg-secondary-fixed/10 px-1.5 py-0.5 rounded">1.8km / 8.1%</span>
+</div>
+<div class="flex items-center justify-between text-body-sm mt-1">
+<div class="flex flex-col">
+<span class="font-label-sensor text-label-sensor text-on-surface-variant uppercase">Current KOM Record</span>
+<span class="font-metric-md text-metric-md text-secondary-fixed font-bold">04:18 <span class="text-body-sm font-normal text-on-surface-variant">(25.1km/h)</span></span>
+</div>
+<div class="flex flex-col text-right">
+<span class="font-label-sensor text-label-sensor text-on-surface-variant uppercase">My Best PR</span>
+<span class="font-metric-md text-metric-md text-tertiary font-bold">04:52 <span class="text-label-caps text-error font-semibold">+34s</span></span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Connected Gear Wear Diagnostics -->
+<div class="w-full bg-surface-container-low rounded-xl p-space-lg shadow-lg flex flex-col">
+<div class="flex items-center justify-between mb-space-md">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary text-[22px]">build_circle</span>
+<span class="font-label-caps text-label-caps text-on-surface uppercase tracking-wider font-bold">장비 마모도 진단 (Gear Sync)</span>
+</div>
+<span class="font-label-sensor text-label-sensor text-on-surface-variant">2개 장비 활성</span>
+</div>
+<div class="flex flex-col gap-space-md">
+<!-- Item 1: Bike Chain Alert -->
+<div class="p-space-md rounded-lg bg-surface-container-lowest flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-error text-[18px]">warning</span>
+<span class="font-headline-sm text-body-md text-white font-bold">KMC X12 체인 교체 권장</span>
+</div>
+<span class="font-label-sensor text-label-sensor text-error bg-error/15 px-1.5 py-0.5 rounded font-bold">마모율 97%</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Specialized Tarmac SL7 장착 • 3,880km 주행</span>
+<div class="w-full bg-surface-container-highest h-2 rounded-full overflow-hidden mt-1">
+<div class="bg-error h-full w-[97%] shadow-[0_0_8px_rgba(255,180,171,0.5)]"></div>
+</div>
+</div>
+<!-- Item 2: Running Shoes Normal -->
+<div class="p-space-md rounded-lg bg-surface-container-lowest flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary text-[18px]">check_circle</span>
+<span class="font-headline-sm text-body-md text-white font-bold">Nike Alphafly 3 Proto</span>
+</div>
+<span class="font-label-sensor text-label-sensor text-tertiary bg-tertiary/15 px-1.5 py-0.5 rounded font-bold">양호 (64%)</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">누적 주행거리 320km / 한계 수명 500km</span>
+<div class="w-full bg-surface-container-highest h-2 rounded-full overflow-hidden mt-1">
+<div class="bg-tertiary h-full w-[64%]"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Active Friends Live Beacon Radar -->
+<div class="w-full bg-surface-container-low rounded-xl p-space-lg shadow-lg flex flex-col">
+<div class="flex items-center justify-between mb-space-md">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary-fixed animate-ping"></span>
+<span class="font-label-caps text-label-caps text-white uppercase tracking-wider font-bold">실시간 비콘 레이더 (Live Beacons)</span>
+</div>
+<span class="font-label-sensor text-label-sensor text-secondary-fixed">현재 3명 온로드</span>
+</div>
+<div class="flex flex-col gap-space-sm">
+<!-- Friend 1 -->
+<div class="p-space-sm rounded-lg bg-surface-container-lowest flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center font-bold text-label-sensor text-white">
+                JS
+              </div>
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm text-white font-semibold">정성우 (Sungwoo)</span>
+<span class="font-label-sensor text-label-sensor text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-primary-container">near_me</span>반포 미니스톱 부근 서쪽 방향
+                </span>
+</div>
+</div>
+<div class="text-right">
+<span class="font-label-caps text-label-caps text-secondary-fixed font-bold">32.4 km/h</span>
+<div class="font-label-sensor text-label-sensor text-on-surface-variant">HR 154 bpm</div>
+</div>
+</div>
+<!-- Friend 2 -->
+<div class="p-space-sm rounded-lg bg-surface-container-lowest flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center font-bold text-label-sensor text-white">
+                HR
+              </div>
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm text-white font-semibold">강하라 (Hara)</span>
+<span class="font-label-sensor text-label-sensor text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-secondary-fixed">near_me</span>북한산성 입구 로드 코스
+                </span>
+</div>
+</div>
+<div class="text-right">
+<span class="font-label-caps text-label-caps text-primary font-bold">14.1 km/h</span>
+<div class="font-label-sensor text-label-sensor text-on-surface-variant">경사도 9.2%</div>
+</div>
+</div>
+<!-- Friend 3 -->
+<div class="p-space-sm rounded-lg bg-surface-container-lowest flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center font-bold text-label-sensor text-white">
+                YB
+              </div>
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm text-white font-semibold">윤영빈 (Youngbin)</span>
+<span class="font-label-sensor text-label-sensor text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-tertiary">near_me</span>탄천 합수부 트랙 러닝
+                </span>
+</div>
+</div>
+<div class="text-right">
+<span class="font-label-caps text-label-caps text-tertiary font-bold">4'15"/km</span>
+<div class="font-label-sensor text-label-sensor text-on-surface-variant">8.4km 완료</div>
+</div>
+</div>
+</div>
+<button class="mt-space-sm w-full py-1.5 rounded-lg bg-surface-container-lowest hover:bg-surface-bright text-on-surface-variant hover:text-white font-label-caps text-label-caps transition-all flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-[16px]">radar</span>전체 라이브 레이더 열기
+        </button>
+</div>
+</aside>
+</div>
+</div>
+<script>
+  function triggerStravaSync() {
+    const icon = document.getElementById('sync-icon');
+    const text = document.getElementById('sync-text');
+    if (!icon || !text) return;
+    
+    icon.classList.add('animate-spin');
+    text.innerText = '동기화 중...';
+    
+    setTimeout(() => {
+      icon.classList.remove('animate-spin');
+      text.innerText = '동기화 완료 (최신 상태)';
+      setTimeout(() => {
+        text.innerText = '스트라바 즉시 동기화';
+      }, 3000);
+    }, 1200);
+  }
+
+  function toggleKudos(buttonId, counterId) {
+    const btn = document.getElementById(buttonId);
+    const counter = document.getElementById(counterId);
+    if (!counter || !btn) return;
+    
+    let currentCount = parseInt(counter.innerText, 10);
+    const isLiked = btn.getAttribute('data-liked') === 'true';
+    
+    if (isLiked) {
+      counter.innerText = currentCount - 1;
+      btn.setAttribute('data-liked', 'false');
+      btn.classList.remove('bg-primary-container', 'text-white');
+      btn.classList.add('bg-surface-container-high', 'text-white');
+    } else {
+      counter.innerText = currentCount + 1;
+      btn.setAttribute('data-liked', 'true');
+      btn.classList.remove('bg-surface-container-high');
+      btn.classList.add('bg-primary-container', 'text-white');
+    }
+  }
+</script></main></div></body></html>

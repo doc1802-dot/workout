@@ -12,6 +12,7 @@ function values(workout) {
     memo: workout?.memo ?? '',
   }
 }
+// WorkoutForm accepts workout (optional), onSaved and onCancel; creates or patches via API.
 export default function WorkoutForm({ workout, onSaved, onCancel }) {
   const [initial] = useState(() => values(workout))
   const [form, setForm] = useState(initial)
@@ -89,11 +90,11 @@ export default function WorkoutForm({ workout, onSaved, onCancel }) {
     </label>
   )
   return (
-    <section className="panel form-panel" aria-labelledby="form-title">
+    <section className="rounded-xl bg-surface-container p-1 sm:p-5" aria-labelledby="form-title">
       <h2 id="form-title">{workout ? '기록 수정' : '새로운 운동 기록'}</h2>
       <form onSubmit={submit}>
         <fieldset disabled={busy}>
-          <div className="form-grid">
+          <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
             <label>
               날짜
               <input
@@ -122,9 +123,9 @@ export default function WorkoutForm({ workout, onSaved, onCancel }) {
                 onChange={(event) => change('distance_km', event.target.value)}
               />
             </label>
-            <div className="time-field">
+            <div className="min-w-0">
               <span>운동 시간</span>
-              <div className="time-inputs">
+              <div className="mt-2 grid grid-cols-3 gap-2">
                 {[
                   ['hours', '시'],
                   ['minutes', '분'],
@@ -149,7 +150,7 @@ export default function WorkoutForm({ workout, onSaved, onCancel }) {
             {numeric('avg_cad', `평균 케이던스 (${form.sport === '바이크' ? 'rpm' : 'spm'})`)}
             {numeric('max_cad', `최대 케이던스 (${form.sport === '바이크' ? 'rpm' : 'spm'})`)}
             {numeric('calories', '칼로리 (kcal)')}
-            <label className="full">
+            <label className="sm:col-span-2">
               메모
               <textarea
                 rows="3"

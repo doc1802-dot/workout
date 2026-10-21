@@ -18,6 +18,11 @@ class WorkoutCreate(BaseModel):
     max_cad: Optional[int] = Field(default=None, ge=0, le=400)
     calories: Optional[int] = Field(default=None, ge=0, le=100000)
     memo: str = Field(default="", max_length=1000)
+    # 라이브 기록에서 함께 보내는 값
+    name: Optional[str] = Field(default=None, max_length=200)
+    polyline: Optional[str] = Field(default=None, max_length=200000)
+    elevation_gain_m: Optional[float] = Field(default=None, ge=0, le=20000)
+    started_at: Optional[dt.datetime] = None
 
 
 class WorkoutUpdate(BaseModel):
@@ -44,3 +49,18 @@ class WorkoutUpdate(BaseModel):
 class StravaExchange(BaseModel):
     code: str = Field(min_length=1, max_length=200)
     state: str = Field(min_length=1, max_length=300)
+    scope: Optional[str] = Field(default=None, max_length=200)    # 사용자가 실제로 허용한 권한
+
+
+class TrackPoint(BaseModel):
+    lat: float = Field(ge=-90, le=90)
+    lng: float = Field(ge=-180, le=180)
+    time: dt.datetime
+    ele: Optional[float] = Field(default=None, ge=-500, le=9000)
+
+
+class StravaUpload(BaseModel):
+    name: str = Field(min_length=1, max_length=200)
+    sport: Sport
+    description: str = Field(default="", max_length=2000)
+    points: list[TrackPoint] = Field(min_length=2, max_length=50000)

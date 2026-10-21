@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { api } from '../lib/api'
 import { sports, number, duration } from '../lib/format'
 import WorkoutForm from '../components/WorkoutForm'
@@ -54,11 +55,12 @@ export default function Workouts() {
     <>
       <div className="page-heading">
         <div>
-          <p className="eyebrow">나의 운동 일지</p>
+          <p className="font-label-caps text-label-caps text-primary-container">나의 운동 일지</p>
           <h1>운동 기록</h1>
           <p className="muted">한 번의 움직임도 놓치지 않도록.</p>
         </div>
         <button
+          className="button"
           onClick={() => {
             setEditing(null)
             setDeleting(null)
@@ -78,7 +80,7 @@ export default function Workouts() {
           }}
         />
       )}
-      <section className="panel filters" aria-label="기록 필터">
+      <section className="panel grid gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-label="기록 필터">
         <label>
           종목
           <select
@@ -141,9 +143,16 @@ export default function Workouts() {
         !error &&
         !invalidRange &&
         (rows.length ? (
-          <div className="table-wrap">
-            <table>
-              <caption>운동 기록 {rows.length}개 · 심박과 케이던스는 평균 / 최대</caption>
+          <div
+            className="min-w-0 max-w-full overflow-x-auto rounded-xl bg-surface-container"
+            tabIndex={0}
+            role="region"
+            aria-label="?? ?? ?"
+          >
+            <table className="min-w-[1100px]">
+              <caption className="p-4 text-left text-on-surface-variant">
+                운동 기록 {rows.length}개 · 심박과 케이던스는 평균 / 최대
+              </caption>
               <thead>
                 <tr>
                   {[
@@ -170,9 +179,13 @@ export default function Workouts() {
                     <td data-label="종목">
                       <span className="sport-badge">{row.sport}</span>
                     </td>
-                    <td data-label="이름 / 메모" className="memo">
-                      {row.name || row.memo || '—'}
-                      {row.name && row.memo && <small>{row.memo}</small>}
+                    <td data-label="이름 / 메모" className="max-w-xs break-words">
+                      <Link to={`/activities/${row.id}`} className="text-primary hover:underline">
+                        {row.name || `${row.date} ${row.sport}`}
+                      </Link>
+                      {row.memo && (
+                        <small className="mt-1 block text-on-surface-variant">{row.memo}</small>
+                      )}
                     </td>
                     <td data-label="거리">{number(row.distance_km)} km</td>
                     <td data-label="시간">{duration(row.duration_sec)}</td>
@@ -187,7 +200,7 @@ export default function Workouts() {
                     <td data-label="출처">
                       {row.source === 'strava' && row.external_id ? (
                         <a
-                          className={`badge ${row.source}`}
+                          className="rounded bg-surface-container-high px-2 py-1 text-primary"
                           href={`https://www.strava.com/activities/${row.external_id}`}
                           target="_blank"
                           rel="noreferrer"
@@ -196,7 +209,7 @@ export default function Workouts() {
                           Strava
                         </a>
                       ) : (
-                        <span className={`badge ${row.source}`}>
+                        <span className="rounded bg-surface-container-high px-2 py-1 text-primary">
                           {{ strava: 'Strava', manual: '직접', csv: 'CSV' }[row.source]}
                         </span>
                       )}
@@ -215,7 +228,7 @@ export default function Workouts() {
                           수정
                         </button>
                         <button
-                          className="quiet danger-text"
+                          className="quiet text-error"
                           disabled={busy}
                           onClick={() => setDeleting(row)}
                         >
