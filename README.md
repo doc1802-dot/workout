@@ -110,6 +110,13 @@ cd frontend && npm run lint && npm run build
 | `STRAVA_WEBHOOK_VERIFY_TOKEN`, `STRAVA_WEBHOOK_SUBSCRIPTION_ID` | Strava 웹훅 구독 확인·검증 |
 | `ALLOWED_ORIGINS` (선택) | Strava 연결 후 돌아올 수 있는 화면 주소 목록 |
 
+## 자동 배포 (GitHub Actions → Vercel)
+
+`.github/workflows/ci.yml`
+- PR: pytest + lint + build → Vercel **미리보기 배포**, 주소를 PR 댓글로 남김
+- master push(PR 병합): 같은 검사 → **운영 배포** → `/api/health` 확인
+- 필요한 값: 저장소 Secret `VERCEL_TOKEN`, 저장소 Variable `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`
+
 ## DB 변경
 
 ```bash
