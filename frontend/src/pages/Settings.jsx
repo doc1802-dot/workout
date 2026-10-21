@@ -74,12 +74,14 @@ export default function Settings() {
         await api('/strava/resync', { method: 'POST' })
         let fetched = 0
         let result
-        do {
+        // 한 번에 최대 500개씩 → 활동 1만 개까지 (무한 반복 방지)
+        for (let round = 0; round < 20; round += 1) {
           result = await api('/strava/sync?update=true', { method: 'POST' })
           fetched += result.fetched
-          setMessage(`?? ?? ?? ?? (${number(fetched)}? ??)`)
-        } while (result.has_more)
-        setMessage(`?? ?? ???? ?? ? ${number(fetched)}? ?? ? ?? ??`)
+          setMessage(`Strava 기록을 다시 가져오는 중… (${number(fetched)}개)`)
+          if (!result.has_more) break
+        }
+        setMessage(`전체 다시 가져오기 완료 · ${number(fetched)}개 활동을 갱신했습니다.`)
         setStatus((current) => ({ ...current, last_synced_at: result.last_synced_at }))
         setConfirm(false)
       } else if (kind === 'sync') {
@@ -153,11 +155,11 @@ export default function Settings() {
           </p>
         ) : (
           <div className="mt-6 grid gap-5 sm:grid-cols-3">
-            <Metric label="???? ??" value={number(stravaWorkouts.length)} unit="?" />
-            <Metric label="? ??" value={number(totalDistance)} unit="km" />
+            <Metric label="동기화된 활동" value={number(stravaWorkouts.length)} unit="개" />
+            <Metric label="총 거리" value={number(totalDistance)} unit="km" />
             <div>
-              <p className="font-label-caps text-label-caps text-on-surface-variant">?? ??</p>
-              <p className="mt-3 font-metric-md">{latestActivityDate || '?? ?? ??'}</p>
+              <p className="font-label-caps text-label-caps text-on-surface-variant">최근 활동</p>
+              <p className="mt-3 font-metric-md">{latestActivityDate || '활동 기록 없음'}</p>
             </div>
           </div>
         )}
@@ -207,25 +209,33 @@ export default function Settings() {
                     </button>
                   </div>
                   {status.can_upload === false && (
-                    <p className="notice">??? ??? Strava? ???? ??? ??? ? ?? ????? (??? ?? ??)</p>
+                    <p className="notice">
+                      라이브 기록을 Strava에 올리려면 연결을 해제한 뒤 다시 연결하세요 (업로드 권한
+                      추가).
+                    </p>
                   )}
                   <div className="mt-6 border-t border-surface-container-highest pt-5">
                     <p className="mb-3 text-body-md text-on-surface-variant">
-                      ?? ??? ??? kudos? ?????. ??? ??? ?????.
+                      이미 가져온 기록에도 지도·응원 수·최고 속도를 채웁니다. 직접 쓴 메모는 그대로
+                      둡니다.
                     </p>
                     <button
                       className="secondary"
                       disabled={busy || !status.configured}
                       onClick={() => setConfirm('resync')}
                     >
-                      Strava ?? ?? ????
+                      Strava 전체 다시 가져오기
                     </button>
                   </div>
                   {confirm && (
                     <Confirm
-                      message="Strava 연결을 해제할까요? 가져온 운동 기록은 유지됩니다."
+                      message={
+                        confirm === 'resync'
+                          ? 'Strava의 모든 활동을 처음부터 다시 받아 기존 기록을 갱신할까요? 활동이 많으면 1분 정도 걸립니다.'
+                          : 'Strava 연결을 해제할까요? 가져온 운동 기록은 유지됩니다.'
+                      }
                       busy={busy}
-                      confirmLabel="연결 해제"
+                      confirmLabel={confirm === 'resync' ? '다시 가져오기' : '연결 해제'}
                       onConfirm={() => action(confirm)}
                       onCancel={() => setConfirm(false)}
                     />

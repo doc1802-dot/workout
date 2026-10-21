@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react'
 import L from 'leaflet'
 import codec from '@mapbox/polyline'
+import { addBaseTiles } from '../lib/mapTiles'
 // RouteMap accepts encoded polyline or latlng pairs, height (default 240), interactive (false).
 export default function RouteMap({ polyline, latlng, height = 240, interactive = false }) {
   const container = useRef(null)
@@ -31,10 +32,7 @@ export default function RouteMap({ polyline, latlng, height = 240, interactive =
       keyboard: interactive,
       zoomControl: interactive,
     })
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution: '© OpenStreetMap contributors © CARTO',
-      maxZoom: 20,
-    }).addTo(map)
+    addBaseTiles(map)
     const route = L.polyline(points, { color: '#ff571b', weight: 4 }).addTo(map)
     for (const [index, point] of [points[0], points.at(-1)].entries()) {
       L.circleMarker(point, {
