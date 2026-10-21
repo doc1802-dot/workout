@@ -184,9 +184,21 @@ export default function Workouts() {
                       {row.calories == null ? '—' : `${number(row.calories)} kcal`}
                     </td>
                     <td data-label="출처">
-                      <span className={`badge ${row.source}`}>
-                        {{ strava: 'Strava', manual: '직접', csv: 'CSV' }[row.source]}
-                      </span>
+                      {row.source === 'strava' && row.external_id ? (
+                        <a
+                          className={`badge ${row.source}`}
+                          href={`https://www.strava.com/activities/${row.external_id}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          aria-label="Strava에서 보기"
+                        >
+                          Strava
+                        </a>
+                      ) : (
+                        <span className={`badge ${row.source}`}>
+                          {{ strava: 'Strava', manual: '직접', csv: 'CSV' }[row.source]}
+                        </span>
+                      )}
                     </td>
                     <td data-label="관리">
                       <div className="actions">

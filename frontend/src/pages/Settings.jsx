@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { api } from '../lib/api'
-import { syncMessage } from '../lib/format'
+import { number, syncMessage } from '../lib/format'
 import Confirm from '../components/Confirm'
 export default function Settings() {
   const location = useLocation()
@@ -15,6 +15,33 @@ export default function Settings() {
   const [csvBusy, setCsvBusy] = useState(false)
   const [csvError, setCsvError] = useState('')
   const [csvMessage, setCsvMessage] = useState('')
+  const [stravaWorkouts, setStravaWorkouts] = useState([])
+  const [workoutsLoading, setWorkoutsLoading] = useState(true)
+  const [workoutsError, setWorkoutsError] = useState('')
+  const latestActivityDate = stravaWorkouts.reduce(
+    (latest, workout) => (workout.date > latest ? workout.date : latest),
+    '',
+  )
+  const totalDistance = stravaWorkouts.reduce(
+    (total, workout) => total + Number(workout.distance_km || 0),
+    0,
+  )
+  useEffect(() => {
+    let active = true
+    api('/workouts')
+      .then((data) => {
+        if (active) setStravaWorkouts(data.filter((workout) => workout.source === 'strava'))
+      })
+      .catch((error) => {
+        if (active) setWorkoutsError(error.message)
+      })
+      .finally(() => {
+        if (active) setWorkoutsLoading(false)
+      })
+    return () => {
+      active = false
+    }
+  }, [])
   useEffect(() => {
     let active = true
     api('/strava/status')
@@ -89,6 +116,29 @@ export default function Settings() {
           <p className="muted">Strava 활동과 기존 운동 기록을 가져오세요.</p>
         </div>
       </div>
+      <section className="panel">
+        <h2>Strava 기록 현황</h2>
+        <p className="muted">
+          Claude Code에서 /strava-sync 를 실행하면 Strava MCP로 새 활동을 가져옵니다. 이미 있는 활동은
+          건너뜁니다.
+        </p>
+        {workoutsLoading ? (
+          <p role="status">Strava 기록을 불러오고 있습니다…</p>
+        ) : workoutsError ? (
+          <p className="notice error" role="alert">
+            {workoutsError}
+          </p>
+        ) : (
+          <dl>
+            <dt>동기화된 활동 수</dt>
+            <dd>{number(stravaWorkouts.length)}개</dd>
+            <dt>가장 최근 활동 날짜</dt>
+            <dd>{latestActivityDate || '활동 기록이 없습니다.'}</dd>
+            <dt>총 거리</dt>
+            <dd>{number(totalDistance)} km</dd>
+          </dl>
+        )}
+      </section>
       <div className="settings-grid">
         <section className="panel">
           <div className="card-heading">

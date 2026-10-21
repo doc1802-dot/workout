@@ -1,7 +1,8 @@
 __pycache__/
 records.csv
 main_backup.py
-.claude/
+.claude/*
+!.claude/skills/
 .pytest_cache/
 .env
 .vercel/

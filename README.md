@@ -54,3 +54,13 @@ npx supabase db push                # 연결된 프로젝트에 적용 (supabase
 2. 서버가 code를 토큰으로 바꿔 `strava_connections`에 저장 (state 서명으로 본인 확인)
 3. "지금 동기화" → 마지막으로 가져온 활동 이후 것만 받아 `workouts`에 추가 (같은 활동은 중복 저장 안 됨)
 4. 러닝 케이던스는 Strava의 한 발 기준 값을 ×2 해서 spm으로 저장. 목록 API에 없는 칼로리·최대 케이던스는 비워 둔다.
+
+## Strava MCP 동기화 (Claude Code)
+
+Strava API 앱 키 없이도, Claude Code에서 `/strava-sync`를 실행하면 Claude가 Strava MCP로 활동을 읽어 `workouts`에 넣는다.
+
+- 절차: `.claude/skills/strava-sync/SKILL.md`
+- 변환: `backend/strava_mcp.py` (MCP 형식 → Workout, 이름의 제어문자 제거, 칼로리 포함)
+- SQL 생성: `python scripts/strava_mcp_sync.py --user-id <uuid> --out sync.sql page*.json`
+- 위 REST 동기화와 `source='strava'`, `external_id`가 같아서 두 방식을 섞어도 중복되지 않는다.
+- MCP 목록에는 심박이 없어서, 새 활동이 적을 때만 `get_activity_performance`로 심박을 채운다.
