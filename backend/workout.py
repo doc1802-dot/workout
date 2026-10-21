@@ -14,7 +14,9 @@ class Workout:
                  avg_hr=None, max_hr=None, avg_cad=None, max_cad=None,
                  calories=None, memo="", *, id=None, name=None,
                  elevation_gain_m=None, started_at=None,
-                 source="manual", external_id=None):
+                 source="manual", external_id=None,
+                 polyline=None, kudos_count=None, avg_watts=None,
+                 max_speed_kmh=None, gear_id=None):
         self.id = id
         self.date = str(date)
         self.sport = sport
@@ -31,6 +33,11 @@ class Workout:
         self.started_at = started_at
         self.source = source
         self.external_id = external_id
+        self.polyline = polyline              # 지도용 경로 (Strava 요약 경로, encoded polyline)
+        self.kudos_count = kudos_count
+        self.avg_watts = avg_watts
+        self.max_speed_kmh = max_speed_kmh
+        self.gear_id = gear_id
 
     def speed(self):
         """평균속도 km/h (숫자)"""
@@ -74,6 +81,11 @@ class Workout:
             "memo": self.memo,
             "source": self.source,
             "external_id": self.external_id,
+            "polyline": self.polyline,
+            "kudos_count": self.kudos_count,
+            "avg_watts": self.avg_watts,
+            "max_speed_kmh": self.max_speed_kmh,
+            "gear_id": self.gear_id,
         }
 
     def to_api(self):
@@ -97,4 +109,9 @@ def from_db(row):
         started_at=row.get("started_at"),
         source=row.get("source", "manual"),
         external_id=row.get("external_id"),
+        polyline=row.get("polyline"),
+        kudos_count=row.get("kudos_count"),
+        avg_watts=row.get("avg_watts"),
+        max_speed_kmh=row.get("max_speed_kmh"),
+        gear_id=row.get("gear_id"),
     )

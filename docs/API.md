@@ -61,3 +61,62 @@
 - POST `/api/strava/exchange` `{"code": "...", "state": "..."}` → status 객체 (code와 state는 콜백 주소의 쿼리값 그대로)
 - POST `/api/strava/sync` → `{"fetched": 30, "imported": 28, "has_more": false, "last_synced_at": "..."}` (새 활동만 추가, 이미 있는 건 건너뜀. has_more=true면 한 번 더 누르면 이어서 가져옴)
 - DELETE `/api/strava/connection` → 204 (연결 해제)
+
+## PACEHUB 화면용 추가 API (Stitch 디자인 개편)
+
+### Workout 객체에 추가된 필드
+`polyline`(Strava 요약 경로, encoded polyline | null), `kudos_count`, `avg_watts`, `max_speed_kmh`, `gear_id` (모두 null 가능)
+
+### 기록 한 건
+- GET `/api/workouts/{id}` → Workout (없으면 404)
+- POST `/api/workouts` 는 `name`, `polyline`, `elevation_gain_m`, `started_at`(ISO) 도 받는다 (라이브 기록 저장용)
+
+### 활동 상세 (Strava 활동이면 Strava에서 자세히 가져온다)
+- GET `/api/workouts/{id}/detail` →
+```json
+{
+  "workout": Workout,
+  "strava": null | {
+    "activity_id": 123, "url": "https://www.strava.com/activities/123",
+    "description": "", "device_name": "Garmin Edge 540",
+    "gear": {"id": "b123", "name": "Tarmac", "distance_km": 3420.1} | null,
+    "average_speed_kmh": 25.1, "max_speed_kmh": 61.2,
+    "average_watts": 180 | null, "max_watts": 620 | null, "weighted_watts": 195 | null, "kilojoules": 900 | null,
+    "calories": 680 | null, "suffer_score": 120 | null,
+    "elev_high": 512.3 | null, "elev_low": 12.0 | null,
+    "kudos_count": 3, "comment_count": 0, "achievement_count": 5, "pr_count": 2, "photo_count": 0,
+    "polyline": "encoded…" | null,
+    "splits": [{"index": 1, "distance_km": 1.0, "elapsed_sec": 300, "moving_sec": 298, "pace_sec_per_km": 298, "speed_kmh": 12.1, "elevation_diff_m": 3.2, "avg_hr": 150 | null}],
+    "laps": [{"index": 1, "name": "Lap 1", "distance_km": 5.0, "elapsed_sec": 1500, "moving_sec": 1490, "speed_kmh": 12.1, "avg_hr": 150 | null, "max_hr": 170 | null, "avg_cad": 170 | null, "avg_watts": null}],
+    "segments": [{"id": 1, "name": "남산 업힐", "distance_km": 2.1, "elapsed_sec": 600, "moving_sec": 600, "avg_grade": 5.2, "pr_rank": 1 | null, "kom_rank": null, "avg_hr": 160 | null, "avg_watts": 210 | null}],
+    "streams": {
+      "distance_km": [...], "time_sec": [...], "altitude_m": [...] | null, "heartrate": [...] | null,
+      "speed_kmh": [...] | null, "cadence": [...] | null, "watts": [...] | null, "grade": [...] | null,
+      "latlng": [[37.5, 127.0], ...] | null
+    } | null
+  },
+  "strava_error": null | "Strava에 연결되어 있지 않습니다." 등
+}
+```
+- streams 배열은 모두 같은 길이(최대 400개로 줄임). 러닝 케이던스는 ×2(spm).
+
+### Strava 프로필·기어·누적
+- GET `/api/strava/profile` (연결 필요, 아니면 400) →
+```json
+{
+  "athlete": {"id": 1, "name": "김덕환", "profile_url": "https://…jpg" | null, "city": "울산", "country": "South Korea", "premium": true, "ftp": 250 | null, "weight": 70.0 | null, "follower_count": 10, "friend_count": 12},
+  "gear": {"bikes": [{"id": "b1", "name": "Tarmac", "distance_km": 3420.1, "primary": true}], "shoes": [...]},
+  "totals": {"recent_run": T, "recent_ride": T, "ytd_run": T, "ytd_ride": T, "all_run": T, "all_ride": T}
+}
+```
+  T = `{"count": 3, "distance_km": 30.2, "moving_sec": 9000, "elevation_m": 120}` (recent = 최근 4주)
+
+### 세그먼트
+- GET `/api/strava/segments` (연결 필요) → `{"segments": [{"id": 1, "name": "…", "activity_type": "Ride", "distance_km": 2.1, "avg_grade": 5.2, "max_grade": 12.0, "elev_high": 300, "elev_low": 190, "climb_category": 3, "city": "울산", "pr_elapsed_sec": 600 | null, "pr_date": "2026-09-01" | null, "effort_count": 12 | null, "url": "https://www.strava.com/segments/1"}]}` (내가 별표한 세그먼트)
+
+### 전체 다시 가져오기 / 업로드
+- POST `/api/strava/resync` → 동기화 시작점을 처음으로 되돌린다 (응답 `{"ok": true}`). 이어서 POST `/api/strava/sync?update=true` 를 has_more가 false가 될 때까지 부르면 이미 있는 Strava 기록도 지도·킬로줄 등 새 필드로 갱신된다 (메모는 유지).
+- POST `/api/strava/upload` `{"name": "Morning Ride", "sport": "바이크", "description": "", "points": [{"lat": 35.5, "lng": 129.3, "time": "2026-10-21T06:00:00Z", "ele": 12.3}]}` → `{"upload_id": 1, "status": "…", "activity_id": null}`
+  - 활동 쓰기 권한(`activity:write`)이 없으면 403 `"Strava 업로드 권한이 없습니다. 연결을 해제하고 다시 연결해 주세요."`
+- GET `/api/strava/upload/{upload_id}` → `{"status": "…", "activity_id": 123 | null, "error": null | "…"}`
+- POST `/api/strava/exchange` 는 `scope`(콜백 주소의 scope 값)도 받는다. `/api/strava/status` 응답에 `can_upload`(bool) 추가.

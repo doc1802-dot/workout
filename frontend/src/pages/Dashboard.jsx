@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Metric } from '../components/ui'
 import PeriodTree from '../components/PeriodTree'
 import { api } from '../lib/api'
 import { number, sports } from '../lib/format'
@@ -47,7 +48,7 @@ export default function Dashboard() {
   }, [selection, retry])
 
   const data = result?.data
-  const years = data?.years || []
+  const years = [...(data?.years || [])].sort((a, b) => a - b)
   const periodSports = (data?.by_sport || []).filter((item) => item.count > 0)
   const visibleSports = [...new Set([...periodSports.map((item) => item.sport), sport])]
     .filter(Boolean)
@@ -85,7 +86,7 @@ export default function Dashboard() {
     <>
       <div className="page-heading">
         <div>
-          <p className="eyebrow">나의 운동 한눈에</p>
+          <p className="font-label-caps text-label-caps text-primary">나의 운동 한눈에</p>
           <h1>작은 기록, 꾸준한 변화</h1>
           <p className="muted">지금까지 달리고 움직인 시간을 만나보세요.</p>
         </div>
@@ -93,8 +94,8 @@ export default function Dashboard() {
           기록 보러 가기 ↗
         </Link>
       </div>
-      <section className="panel dashboard-filters" aria-label="운동 통계 필터">
-        <div className="toggle" role="group" aria-label="기간 범위">
+      <section className="panel grid gap-4" aria-label="운동 통계 필터">
+        <div className="toggle !my-0 w-fit" role="group" aria-label="기간 범위">
           {[
             ['all', '전체'],
             ['year', '연간'],
@@ -113,7 +114,7 @@ export default function Dashboard() {
           ))}
         </div>
         {scope !== 'all' && (
-          <div className="period-picker">
+          <div className="flex flex-wrap items-center gap-2 [&_select]:w-auto">
             <button
               type="button"
               className="secondary"
@@ -160,12 +161,12 @@ export default function Dashboard() {
             </button>
           </div>
         )}
-        <div className="sport-tabs" role="group" aria-label="종목 필터">
+        <div className="flex flex-wrap gap-2" role="group" aria-label="종목 필터">
           {['', ...visibleSports].map((value) => (
             <button
               key={value}
               type="button"
-              className={sport === value ? '' : 'secondary'}
+              className={sport === value ? 'button' : 'secondary'}
               aria-pressed={sport === value}
               onClick={() => change({ sport: value })}
             >
@@ -193,38 +194,45 @@ export default function Dashboard() {
       )}
       {stale && error && <p className="muted">이전 조회 결과를 표시하고 있습니다.</p>}
       {data && (
-        <div className={`dashboard-results${busy || stale ? ' is-stale' : ''}`} aria-busy={busy}>
+        <div className={`grid min-w-0 gap-5 ${busy || stale ? 'opacity-60' : ''}`} aria-busy={busy}>
           {!data.total.count && <p className="empty">선택한 조건에 해당하는 기록이 없습니다.</p>}
-          <div className="stats-grid">
+          <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
             {[
               ['기록 수', `${number(data.total.count)}회`],
               ['총 거리', `${number(data.total.distance_km)} km`],
               ['총 시간', time(data.total.duration_sec)],
               ['총 칼로리', `${number(data.total.calories)} kcal`],
             ].map(([label, value]) => (
-              <section className="panel stat" key={label}>
-                <p>{label}</p>
-                <strong>{value}</strong>
+              <section
+                className="min-w-0 rounded-xl border-t-2 border-primary-container bg-surface-container p-5"
+                key={label}
+              >
+                <Metric label={label} value={value} />
               </section>
             ))}
           </div>
           <section className="panel">
             <h2>종목별 요약</h2>
-            <div className="sport-totals">
+            <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {summarySports.map((item) => (
                 <button
                   type="button"
-                  className="secondary sport-summary"
+                  className="grid gap-3 rounded-lg bg-surface-container-low p-4 text-left hover:bg-surface-container-high"
                   key={item.sport}
                   disabled={busy || stale}
                   aria-pressed={shown.sport === item.sport}
                   onClick={() => change({ sport: item.sport })}
                 >
                   <span>
-                    <i className="sport-dot" style={{ background: sportColor(item.sport) }} />
+                    <i
+                      className="mr-2 inline-block h-2 w-2 rounded-full"
+                      style={{ background: sportColor(item.sport) }}
+                    />
                     {item.sport}
                   </span>
-                  <strong>{number(item.distance_km)} km</strong>
+                  <strong className="font-metric-lg text-metric-lg text-secondary-container">
+                    {number(item.distance_km)} km
+                  </strong>
                   <span className="muted">
                     {number(item.count)}회 · {time(item.duration_sec)}
                   </span>
@@ -235,20 +243,22 @@ export default function Dashboard() {
           </section>
           <PeriodTree sport={sport} sportColor={sportColor} change={change} />
           <h2 className="section-heading">나의 최고 기록</h2>
-          <div className="pr-grid">
+          <div className="grid gap-4 md:grid-cols-3">
             {[
               ['best_run', '러닝 최고 페이스'],
               ['best_bike', '바이크 최고 속도'],
               ['longest', '최장 거리'],
             ].map(([key, label]) => (
-              <section className="panel pr" key={key}>
-                <span className="eyebrow">{label}</span>
+              <section className="min-w-0 rounded-xl bg-surface-container p-5" key={key}>
+                <span className="font-label-caps text-label-caps text-primary">{label}</span>
                 {data.pr[key] ? (
                   <>
-                    <h3>
-                      {key === 'longest'
-                        ? `${number(data.pr[key].distance_km)} km`
-                        : data.pr[key].summary}
+                    <h3 className="my-3 break-words font-metric-md text-metric-md text-white">
+                      <Link className="hover:text-primary" to={`/activities/${data.pr[key].id}`}>
+                        {key === 'longest'
+                          ? `${number(data.pr[key].distance_km)} km`
+                          : data.pr[key].summary}
+                      </Link>
                     </h3>
                     {key === 'longest' && <p>{data.pr[key].summary}</p>}
                     <p className="muted">

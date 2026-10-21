@@ -13,7 +13,8 @@ from backend.workout import Workout
 AUTHORIZE_URL = "https://www.strava.com/oauth/authorize"
 TOKEN_URL = "https://www.strava.com/oauth/token"
 API_URL = "https://www.strava.com/api/v3"
-SCOPE = "read,activity:read_all"
+SCOPE = "read,activity:read_all,activity:write"     # write: 라이브 기록을 Strava에 올릴 때
+WRITE_SCOPE = "activity:write"
 
 PER_PAGE = 100
 MAX_PAGES = 5            # 한 번 동기화에 최대 500개. 더 있으면 다시 누르면 이어서 가져온다.
@@ -121,6 +122,37 @@ def refresh_if_needed(connection, now=None):
 # ------------------------------------------------------------------
 # 활동 가져오기
 # ------------------------------------------------------------------
+def _check(res, what):
+    if res.status_code == 401:
+        raise StravaError("Strava 권한이 없습니다. 연결을 해제한 뒤 다시 연결해 주세요.")
+    if res.status_code == 403:
+        raise StravaError(f"Strava가 {what} 권한을 허용하지 않았습니다. 연결을 해제한 뒤 다시 연결해 주세요.")
+    if res.status_code == 404:
+        raise StravaError(f"Strava에서 {what}을(를) 찾을 수 없습니다.")
+    if res.status_code == 429:
+        raise StravaError("Strava 요청 한도에 걸렸습니다. 15분 뒤 다시 시도해 주세요.")
+    if res.status_code >= 400:
+        raise StravaError(f"Strava {what} 조회 실패 ({res.status_code})")
+    return res.json()
+
+
+def api_get(access_token, path, what, **params):
+    """Strava API GET 한 번. 오류는 StravaError로 바꾼다."""
+    res = httpx.get(f"{API_URL}{path}", timeout=20, params=params,
+                    headers={"Authorization": f"Bearer {access_token}"})
+    return _check(res, what)
+
+
+def upload_gpx(access_token, gpx_text, name, description, activity_type):
+    """GPX 파일을 Strava에 올린다. Strava가 처리하는 데 몇 초 걸려서 upload id를 돌려준다."""
+    res = httpx.post(f"{API_URL}/uploads", timeout=30,
+                     headers={"Authorization": f"Bearer {access_token}"},
+                     data={"data_type": "gpx", "name": name, "description": description,
+                           "activity_type": activity_type},
+                     files={"file": ("activity.gpx", gpx_text.encode("utf-8"), "application/gpx+xml")})
+    return _check(res, "업로드")
+
+
 def fetch_activities(access_token, after_epoch):
     """after_epoch 이후 활동을 오래된 것부터 가져온다. (리스트, 더 남았는지)"""
     activities = []
@@ -147,6 +179,11 @@ def _round_or_none(value, factor=1):
     return round(value * factor)
 
 
+def kmh(meters_per_sec):
+    """m/s → km/h (소수 1자리)"""
+    return None if meters_per_sec is None else round(meters_per_sec * 3.6, 1)
+
+
 def to_workout(activity):
     """Strava 활동(dict) → Workout"""
     sport = SPORT_MAP.get(activity.get("sport_type") or activity.get("type"), "기타")
@@ -171,4 +208,9 @@ def to_workout(activity):
         started_at=activity.get("start_date"),
         source="strava",
         external_id=str(activity["id"]),
+        polyline=(activity.get("map") or {}).get("summary_polyline") or None,
+        kudos_count=activity.get("kudos_count"),
+        avg_watts=_round_or_none(activity.get("average_watts")),
+        max_speed_kmh=kmh(activity.get("max_speed")),
+        gear_id=activity.get("gear_id"),
     )

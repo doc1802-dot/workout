@@ -52,27 +52,30 @@ function RequestStatus({ request }) {
 function PeriodRow({ bucket, max, sport, sportColor, change, toggle }) {
   const [year, month] = bucket.key.split('-').map(Number)
   return (
-    <div className={`period-tree-row${month ? ' period-tree-month' : ''}`}>
+    <div className={`my-2 flex flex-wrap items-center gap-2 ${month ? 'pl-4' : ''}`}>
       {toggle}
       <button
         type="button"
-        className="secondary period-tree-label"
+        className="secondary shrink-0"
         onClick={() => change({ scope: month ? 'month' : 'year', year, month: month || 1 })}
       >
         {bucket.label}
       </button>
-      <div className="bar-track stacked-track" aria-hidden="true">
+      <div
+        className="flex h-2 min-w-12 flex-1 overflow-hidden rounded-full bg-surface-container-lowest"
+        aria-hidden="true"
+      >
         {(sport ? [[sport, bucket.distance_km]] : Object.entries(bucket.by_sport || {})).map(
           ([name, distance]) => (
             <div
-              className="bar"
+              className="h-full"
               key={name}
               style={{ width: `${(distance / max) * 100}%`, background: sportColor(name) }}
             />
           ),
         )}
       </div>
-      <span className="period-tree-value">
+      <span className="font-metric-md text-body-sm">
         {number(bucket.distance_km)} km · {number(bucket.count)}회
       </span>
     </div>
@@ -100,7 +103,7 @@ function YearRow({ bucket, max, sport, sportColor, change, visible }) {
         toggle={
           <button
             type="button"
-            className="secondary period-tree-toggle"
+            className="secondary h-9 w-9 !p-0"
             aria-expanded={expanded}
             aria-controls={id}
             aria-label={`${year}년 월별 기록 ${expanded ? '접기' : '펼치기'}`}
@@ -110,10 +113,10 @@ function YearRow({ bucket, max, sport, sportColor, change, visible }) {
           </button>
         }
       />
-      <div id={id} hidden={!expanded} className="period-tree-months">
+      <div id={id} hidden={!expanded} className="pl-2">
         <RequestStatus request={request} />
         {request.data && !months.length && <p className="empty">저장된 기록이 없습니다.</p>}
-        <ul className="period-tree-list">
+        <ul className="grid gap-1">
           {months.map((month) => (
             <li key={month.key}>
               <PeriodRow
@@ -141,14 +144,17 @@ function YearList({ expanded, sport, sportColor, change }) {
             .filter((item) => item.count > 0)
             .map((item) => (
               <span key={item.sport}>
-                <i className="sport-dot" style={{ background: sportColor(item.sport) }} />
+                <i
+                  className="mr-2 inline-block h-2 w-2 rounded-full"
+                  style={{ background: sportColor(item.sport) }}
+                />
                 {item.sport}
               </span>
             ))}
         </div>
       )}
       {request.data && !years.length && <p className="empty">저장된 기록이 없습니다.</p>}
-      <ul className="period-tree-list">
+      <ul className="grid gap-1">
         {years.map((bucket) => (
           <YearRow
             key={bucket.key}
@@ -163,12 +169,13 @@ function YearList({ expanded, sport, sportColor, change }) {
   )
 }
 
+// PeriodTree accepts sport, sportColor(name) and change(selection); loads periods on expansion.
 export default function PeriodTree({ sport, sportColor, change }) {
   const [expanded, setExpanded] = useState(false)
   const id = useId()
   return (
-    <section className="panel period-tree">
-      <div className="period-tree-heading">
+    <section className="panel">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <h2>기간별 기록</h2>
         <button
           type="button"

@@ -11,7 +11,7 @@ MCP 형식은 REST와 다르다:
 """
 import re
 
-from backend.strava import SPORT_MAP, STEP_SPORTS, _round_or_none
+from backend.strava import SPORT_MAP, STEP_SPORTS, _round_or_none, kmh
 from backend.workout import Workout
 
 # 오픈라이더 등이 이름 앞에 붙이는 제어문자(\u0000 등)는 Postgres text에 못 넣는다
@@ -47,4 +47,7 @@ def to_workout(activity, performance=None):
         elevation_gain_m=summary.get("elevation_gain"),
         source="strava",
         external_id=str(activity["id"]),
+        kudos_count=summary.get("kudos_count"),
+        max_speed_kmh=kmh(summary.get("max_speed")),
+        polyline=activity.get("polyline") or None,        # include_polyline=true 일 때만 있다
     )

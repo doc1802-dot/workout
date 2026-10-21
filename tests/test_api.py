@@ -16,9 +16,18 @@ class FakeDatabase:
         rows = [r for r in self.rows if sport is None or r["sport"] == sport]
         return sorted(rows, key=lambda r: r["date"], reverse=True)
 
-    def insert_workouts(self, rows, skip_duplicates=False):
+    def get_workout(self, workout_id):
+        return next((r for r in self.rows if r["id"] == workout_id), None)
+
+    def insert_workouts(self, rows, skip_duplicates=False, update_existing=False):
         added = []
         for i, row in enumerate(rows):
+            same = next((r for r in self.rows if r.get("external_id") and r["source"] == row["source"]
+                         and r["external_id"] == row["external_id"]), None)
+            if update_existing and same:
+                same.update(row)
+                added.append(same)
+                continue
             if skip_duplicates and any(r["source"] == row["source"] and r["external_id"] == row["external_id"]
                                        for r in self.rows):
                 continue
@@ -152,3 +161,97 @@ def test_strava_sync_imports_only_new(client, monkeypatch):
 
     body = client.post("/api/strava/sync").json()                 # 같은 활동을 다시 받아도
     assert body["imported"] == 0                                  # 중복 저장 안 함
+
+
+# ------------------------------------------------------------------
+# PACEHUB 화면용 API
+# ------------------------------------------------------------------
+def strava_ready(monkeypatch, scope="read,activity:read_all"):
+    monkeypatch.setattr(main.config, "STRAVA_CLIENT_ID", "1")
+    monkeypatch.setattr(main.config, "STRAVA_CLIENT_SECRET", "s")
+    FakeDatabase.connection = {"access_token": "tok", "refresh_token": "r", "scope": scope,
+                               "expires_at": "2099-01-01T00:00:00+00:00", "sync_cursor": None,
+                               "athlete_id": 1, "athlete_name": "A", "last_synced_at": None}
+    monkeypatch.setattr(main.strava, "refresh_if_needed", lambda conn: None)
+
+
+def test_get_one_and_live_fields(client):
+    live = {**RUN, "name": "라이브 런", "polyline": "abc", "elevation_gain_m": 12.5,
+            "started_at": "2026-10-01T06:00:00+09:00"}
+    created = client.post("/api/workouts", json=live).json()
+    assert created["name"] == "라이브 런" and created["polyline"] == "abc"
+    got = client.get(f"/api/workouts/{created['id']}").json()
+    assert got["elevation_gain_m"] == 12.5 and got["started_at"].startswith("2026-10-01T06:00:00")
+    assert client.get("/api/workouts/nope").status_code == 404
+
+
+def test_detail_manual_has_no_strava(client):
+    created = client.post("/api/workouts", json=RUN).json()
+    body = client.get(f"/api/workouts/{created['id']}/detail").json()
+    assert body["workout"]["id"] == created["id"] and body["strava"] is None
+    assert body["strava_error"] is None
+
+
+def test_detail_strava_activity(client, monkeypatch):
+    from tests.test_strava_detail import ACTIVITY, STREAMS
+    strava_ready(monkeypatch)
+    FakeDatabase.rows = [{"id": "w1", "date": "2026-10-01", "sport": "러닝", "distance_km": 5.01,
+                          "duration_sec": 1599, "source": "strava", "external_id": "20406610343"}]
+    calls = []
+
+    def fake_get(token, path, what, **params):
+        calls.append(path)
+        return STREAMS if path.endswith("/streams") else ACTIVITY
+
+    monkeypatch.setattr(main.strava, "api_get", fake_get)
+    body = client.get("/api/workouts/w1/detail").json()
+    assert calls == ["/activities/20406610343", "/activities/20406610343/streams"]
+    assert body["strava"]["splits"][0]["pace_sec_per_km"] == 310
+    assert body["strava"]["streams"]["heartrate"] == [150, 160, 170]
+
+
+def test_detail_strava_not_connected_shows_error(client, monkeypatch):
+    monkeypatch.setattr(main.config, "STRAVA_CLIENT_ID", "1")
+    monkeypatch.setattr(main.config, "STRAVA_CLIENT_SECRET", "s")
+    FakeDatabase.rows = [{"id": "w1", "date": "2026-10-01", "sport": "러닝", "distance_km": 5.0,
+                          "duration_sec": 1599, "source": "strava", "external_id": "1"}]
+    body = client.get("/api/workouts/w1/detail").json()
+    assert body["strava"] is None and "연결" in body["strava_error"]
+
+
+def test_upload_needs_write_scope(client, monkeypatch):
+    strava_ready(monkeypatch)
+    points = [{"lat": 35.5, "lng": 129.3, "time": "2026-10-21T06:00:00Z"},
+              {"lat": 35.501, "lng": 129.301, "time": "2026-10-21T06:00:10Z"}]
+    payload = {"name": "Morning Run", "sport": "러닝", "points": points}
+    assert client.post("/api/strava/upload", json=payload).status_code == 403
+    assert client.get("/api/strava/status").json()["can_upload"] is False
+
+    FakeDatabase.connection["scope"] = "read,activity:read_all,activity:write"
+    sent = {}
+
+    def fake_upload(token, gpx, name, description, activity_type):
+        sent.update(gpx=gpx, type=activity_type)
+        return {"id": 99, "status": "processing", "activity_id": None}
+
+    monkeypatch.setattr(main.strava, "upload_gpx", fake_upload)
+    body = client.post("/api/strava/upload", json=payload).json()
+    assert body == {"upload_id": 99, "status": "processing", "activity_id": None}
+    assert sent["type"] == "run" and sent["gpx"].count("<trkpt") == 2
+
+
+def test_resync_then_update_keeps_memo(client, monkeypatch):
+    from tests.test_strava_mapping import NIGHT_RUN
+    strava_ready(monkeypatch)
+    monkeypatch.setattr(main.strava, "fetch_activities", lambda token, after: ([NIGHT_RUN], False))
+    client.post("/api/strava/sync")
+    FakeDatabase.rows[0]["memo"] = "내 메모"
+    assert client.post("/api/strava/resync").json() == {"ok": True}
+    assert FakeDatabase.updates[-1] == {"sync_cursor": None}
+
+    changed = {**NIGHT_RUN, "kudos_count": 7, "map": {"summary_polyline": "xyz"}}
+    monkeypatch.setattr(main.strava, "fetch_activities", lambda token, after: ([changed], False))
+    body = client.post("/api/strava/sync?update=true").json()
+    assert body["imported"] == 1 and len(FakeDatabase.rows) == 1
+    row = FakeDatabase.rows[0]
+    assert row["kudos_count"] == 7 and row["polyline"] == "xyz" and row["memo"] == "내 메모"
