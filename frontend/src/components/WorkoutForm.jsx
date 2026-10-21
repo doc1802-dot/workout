@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { api } from '../lib/api'
 import { sports, today } from '../lib/format'
 const optional = ['avg_hr', 'max_hr', 'avg_cad', 'max_cad', 'calories']
@@ -23,6 +23,20 @@ export default function WorkoutForm({ workout, onSaved, onCancel }) {
   })
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  // 새 기록이고 Strava 업로드 권한이 있으면 "Strava에도 올리기"를 보여준다 (기본 켜짐)
+  const [canUpload, setCanUpload] = useState(false)
+  const [toStrava, setToStrava] = useState(true)
+  const [saved, setSaved] = useState(false)
+  useEffect(() => {
+    if (workout) return
+    let active = true
+    api('/strava/status')
+      .then((s) => active && setCanUpload(Boolean(s.connected && s.can_upload)))
+      .catch(() => {})
+    return () => {
+      active = false
+    }
+  }, [workout])
   const change = (key, value) => setForm((current) => ({ ...current, [key]: value }))
   async function submit(event) {
     event.preventDefault()
@@ -64,14 +78,26 @@ export default function WorkoutForm({ workout, onSaved, onCancel }) {
       return
     }
     setBusy(true)
+    let created = null
     try {
-      await api(workout ? `/workouts/${workout.id}` : '/workouts', {
+      created = await api(workout ? `/workouts/${workout.id}` : '/workouts', {
         method: workout ? 'PATCH' : 'POST',
         body,
       })
+      if (!workout && canUpload && toStrava) {
+        await api(`/workouts/${created.id}/strava`, { method: 'POST' })
+      }
       onSaved()
     } catch (error) {
-      setError(error.message)
+      if (created && !workout) {
+        // 기록은 저장됐고 Strava 업로드만 실패 → 다시 저장하면 중복되므로 닫기만 하게 한다
+        setSaved(true)
+        setError(
+          `기록은 저장했지만 Strava 업로드에 실패했습니다: ${error.message} (활동 상세에서 다시 올릴 수 있습니다)`,
+        )
+      } else {
+        setError(error.message)
+      }
     } finally {
       setBusy(false)
     }
@@ -164,8 +190,24 @@ export default function WorkoutForm({ workout, onSaved, onCancel }) {
               {error}
             </p>
           )}
+          {!workout && canUpload && (
+            <label className="mt-4 flex items-center gap-2 text-body-md">
+              <input
+                type="checkbox"
+                checked={toStrava}
+                onChange={(event) => setToStrava(event.target.checked)}
+              />
+              Strava에도 올리기 (수동 활동으로 만들어집니다)
+            </label>
+          )}
           <div className="actions">
-            <button type="submit">{busy ? '저장 중…' : '기록 저장'}</button>
+            {saved ? (
+              <button type="button" onClick={onSaved}>
+                닫기
+              </button>
+            ) : (
+              <button type="submit">{busy ? '저장 중…' : '기록 저장'}</button>
+            )}
             <button type="button" className="secondary" onClick={onCancel}>
               취소
             </button>

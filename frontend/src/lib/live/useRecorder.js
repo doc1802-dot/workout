@@ -1,8 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { acceptPosition, parseHeartRate, persistSession, readSession, tick } from './recorder'
 
-export default function useRecorder() {
-  const [recovery, setRecovery] = useState(readSession)
+export default function useRecorder(owner) {
+  const [recovery, setRecovery] = useState(null)
+  // 로그인한 사용자를 알게 되면 그 사람의 기록만 복구 후보로 읽는다
+  useEffect(() => {
+    setRecovery(owner ? readSession(owner) : null)
+  }, [owner])
   const [session, setView] = useState(null)
   const current = useRef(null)
   const [gps, setGps] = useState('GPS 대기')

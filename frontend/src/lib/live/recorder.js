@@ -6,9 +6,11 @@ export function haversine(a, b) {
     Math.cos(a.lat * rad) * Math.cos(b.lat * rad) * Math.sin(((b.lng - a.lng) * rad) / 2) ** 2
   return 6371000 * 2 * Math.asin(Math.sqrt(Math.min(1, h)))
 }
-export function createSession(sport, now = Date.now()) {
+// owner: 로그인한 사용자 id. 같은 브라우저를 여러 사람이 써도 남의 기록이 복구되지 않게 한다.
+export function createSession(sport, now = Date.now(), owner = null) {
   return {
     version: 1,
+    owner,
     sport,
     started: now,
     updated: now,
@@ -114,10 +116,12 @@ export function addLap(s) {
 export function persistSession(s, storage = localStorage) {
   storage.setItem(SESSION_KEY, JSON.stringify(s))
 }
-export function readSession(storage = localStorage) {
+export function readSession(owner, storage = localStorage) {
   try {
     const s = JSON.parse(storage.getItem(SESSION_KEY))
     if (
+      !owner ||
+      s?.owner !== owner ||
       s?.version !== 1 ||
       !Array.isArray(s.points) ||
       !Array.isArray(s.laps) ||
@@ -135,6 +139,13 @@ export function readSession(storage = localStorage) {
     }
   } catch {
     return null
+  }
+}
+export function clearSession(storage = localStorage) {
+  try {
+    storage.removeItem(SESSION_KEY)
+  } catch {
+    /* 저장소가 막혀 있으면 지울 것도 없다 */
   }
 }
 export function simplifyPoints(points, max = 2000) {

@@ -9,7 +9,43 @@ import SplitTable from '../components/analytics/SplitTable'
 import { api } from '../lib/api'
 import { clock, dateLabel, number, pace, speed } from '../lib/format'
 
-function Detail({ data }) {
+// 앱에서 입력한 기록을 Strava 수동 활동으로 올리는 버튼 (업로드 권한이 있을 때만 보임)
+function StravaPushButton({ id, onDone }) {
+  const [canUpload, setCanUpload] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+  useEffect(() => {
+    let active = true
+    api('/strava/status')
+      .then((s) => active && setCanUpload(Boolean(s.connected && s.can_upload)))
+      .catch(() => {})
+    return () => {
+      active = false
+    }
+  }, [])
+  if (!canUpload) return null
+  async function push() {
+    setBusy(true)
+    setError('')
+    try {
+      await api(`/workouts/${id}/strava`, { method: 'POST' })
+      onDone()
+    } catch (e) {
+      setError(e.message)
+      setBusy(false)
+    }
+  }
+  return (
+    <div className="mt-4">
+      <button className="secondary" disabled={busy} onClick={push}>
+        {busy ? 'Strava에 올리는 중…' : 'Strava에 올리기 ↑'}
+      </button>
+      {error && <ErrorNotice message={error} />}
+    </div>
+  )
+}
+
+function Detail({ data, onReload }) {
   const [hoveredIndex, setHoveredIndex] = useState(null)
   const [series, setSeries] = useState('heartrate')
   const w = data.workout
@@ -95,6 +131,7 @@ function Detail({ data }) {
             Strava에서 보기 ↗
           </a>
         )}
+        {w.source !== 'strava' && <StravaPushButton id={w.id} onDone={onReload} />}
         {[...new Set([s?.description, w.memo].filter(Boolean))].map((text) => (
           <p
             key={text}
@@ -312,5 +349,5 @@ export default function ActivityDetail() {
         }
       />
     )
-  return <Detail key={id} data={result.data} />
+  return <Detail key={id} data={result.data} onReload={() => setRetry((value) => value + 1)} />
 }

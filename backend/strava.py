@@ -44,7 +44,20 @@ def clean_text(text):
 
 
 class StravaError(Exception):
-    pass
+    def __init__(self, message, status=None):
+        super().__init__(message)
+        self.status = status          # Strava HTTP 상태 (404면 '없는 활동')
+
+
+ACTIVITY_ID = re.compile(r"\d{1,20}")
+
+
+def activity_id(value):
+    """Strava 활동 id는 숫자만. 경로 조작(../athlete 등)을 막는다."""
+    text = str(value or "")
+    if not ACTIVITY_ID.fullmatch(text):
+        raise StravaError("Strava 활동 id가 올바르지 않습니다.", 400)
+    return text
 
 
 # ------------------------------------------------------------------
@@ -92,7 +105,9 @@ def _token_request(data):
         **data,
     })
     if res.status_code != 200:
-        raise StravaError(f"Strava 인증 실패 ({res.status_code}): {res.text}")
+        # 응답 원문은 서버 로그에만 남기고 사용자에게는 상태 코드만 보여준다
+        print(f"strava token error {res.status_code}: {res.text[:300]}")
+        raise StravaError(f"Strava 인증 실패 ({res.status_code}). 다시 연결해 주세요.", res.status_code)
     return res.json()
 
 
@@ -132,16 +147,18 @@ def refresh_if_needed(connection, now=None):
 # 활동 가져오기
 # ------------------------------------------------------------------
 def _check(res, what):
-    if res.status_code == 401:
-        raise StravaError("Strava 권한이 없습니다. 연결을 해제한 뒤 다시 연결해 주세요.")
-    if res.status_code == 403:
-        raise StravaError(f"Strava가 {what} 권한을 허용하지 않았습니다. 연결을 해제한 뒤 다시 연결해 주세요.")
-    if res.status_code == 404:
-        raise StravaError(f"Strava에서 {what}을(를) 찾을 수 없습니다.")
-    if res.status_code == 429:
-        raise StravaError("Strava 요청 한도에 걸렸습니다. 15분 뒤 다시 시도해 주세요.")
-    if res.status_code >= 400:
-        raise StravaError(f"Strava {what} 조회 실패 ({res.status_code})")
+    status = res.status_code
+    if status == 401:
+        raise StravaError("Strava 권한이 없습니다. 연결을 해제한 뒤 다시 연결해 주세요.", status)
+    if status == 403:
+        raise StravaError(f"Strava가 {what} 권한을 허용하지 않았습니다. 연결을 해제한 뒤 다시 연결해 주세요.", status)
+    if status == 404:
+        raise StravaError(f"Strava에서 {what}을(를) 찾을 수 없습니다.", status)
+    if status == 429:
+        raise StravaError("Strava 요청 한도에 걸렸습니다. 15분 뒤 다시 시도해 주세요.", status)
+    if status >= 400:
+        print(f"strava {what} error {status}: {res.text[:300]}")
+        raise StravaError(f"Strava {what} 처리 실패 ({status})", status)
     return res.json()
 
 
@@ -150,6 +167,25 @@ def api_get(access_token, path, what, **params):
     res = httpx.get(f"{API_URL}{path}", timeout=20, params=params,
                     headers={"Authorization": f"Bearer {access_token}"})
     return _check(res, what)
+
+
+# 우리 종목 → Strava sport_type (수동 활동 만들기용)
+SPORT_TYPES = {"러닝": "Run", "바이크": "Ride", "하이킹": "Hike", "걷기": "Walk", "수영": "Swim", "기타": "Workout"}
+
+
+def create_activity(access_token, workout, start_date_local):
+    """GPS 없는 '수동 활동'을 Strava에 만든다 (activity:write 필요). 만들어진 활동 dict를 돌려준다."""
+    res = httpx.post(f"{API_URL}/activities", timeout=20,
+                     headers={"Authorization": f"Bearer {access_token}"},
+                     data={
+                         "name": workout.name or f"{workout.sport} 기록",
+                         "sport_type": SPORT_TYPES.get(workout.sport, "Workout"),
+                         "start_date_local": start_date_local,
+                         "elapsed_time": workout.duration_sec,
+                         "distance": round(workout.distance_km * 1000, 1),
+                         "description": workout.memo or "",
+                     })
+    return _check(res, "활동 만들기")
 
 
 def upload_gpx(access_token, gpx_text, name, description, activity_type):
