@@ -6,7 +6,7 @@ backend/strava.py 가 Strava와 '통신'을 맡고, 이 모듈은 받은 값을 
 from datetime import datetime, timezone
 from xml.sax.saxutils import escape
 
-from backend.strava import STEP_SPORTS, SPORT_MAP, kmh
+from backend.strava import STEP_SPORTS, SPORT_MAP, clean_text, kmh
 
 MAX_STREAM_POINTS = 400        # 그래프·지도에 충분하고 응답은 가볍게
 STREAM_KEYS = "time,distance,altitude,heartrate,velocity_smooth,cadence,watts,grade_smooth,latlng"
@@ -71,7 +71,7 @@ def _laps(activity, cadence_factor):
 def _segments(activity):
     return [{
         "id": (e.get("segment") or {}).get("id"),
-        "name": e.get("name") or (e.get("segment") or {}).get("name"),
+        "name": clean_text(e.get("name") or (e.get("segment") or {}).get("name")),
         "distance_km": _km(e.get("distance")),
         "elapsed_sec": e.get("elapsed_time"),
         "moving_sec": e.get("moving_time"),

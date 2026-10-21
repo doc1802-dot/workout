@@ -1,6 +1,7 @@
 """Strava 연동: OAuth 연결, 토큰 갱신, 활동 가져오기, 활동 → Workout 변환."""
 import hashlib
 import hmac
+import re
 import time
 from datetime import datetime, timezone
 from urllib.parse import urlencode
@@ -32,6 +33,14 @@ SPORT_MAP = {
 }
 # Strava는 러닝 케이던스를 '한 발 기준'으로 준다 → 두 발 기준 spm으로 바꾸려면 ×2
 STEP_SPORTS = {"러닝", "하이킹", "걷기"}
+
+
+# 오픈라이더 등이 이름 앞에 붙이는 제어문자(\u0000 등)는 Postgres text에 못 넣는다
+CONTROL_CHARS = re.compile(r"[\x00-\x1f\x7f]")
+
+
+def clean_text(text):
+    return CONTROL_CHARS.sub("", text or "").strip()
 
 
 class StravaError(Exception):
@@ -203,7 +212,7 @@ def to_workout(activity):
         None,                                                   # 목록 API에는 최대 케이던스가 없다
         _round_or_none(activity.get("calories")),               # 목록 API에는 보통 없음 → None
         "",
-        name=activity.get("name"),
+        name=clean_text(activity.get("name")) or None,
         elevation_gain_m=activity.get("total_elevation_gain"),
         started_at=activity.get("start_date"),
         source="strava",

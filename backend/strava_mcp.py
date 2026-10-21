@@ -9,18 +9,8 @@ MCP 형식은 REST와 다르다:
   - summary 안에 distance, moving_time, elevation_gain, avg_cadence, total_calories
   - 심박은 목록에 없고 get_activity_performance 결과(performance)에 있다
 """
-import re
-
-from backend.strava import SPORT_MAP, STEP_SPORTS, _round_or_none, kmh
+from backend.strava import SPORT_MAP, STEP_SPORTS, _round_or_none, clean_text, kmh
 from backend.workout import Workout
-
-# 오픈라이더 등이 이름 앞에 붙이는 제어문자(\u0000 등)는 Postgres text에 못 넣는다
-CONTROL_CHARS = re.compile(r"[\x00-\x1f\x7f]")
-
-
-def clean_text(text):
-    return CONTROL_CHARS.sub("", text or "").strip()
-
 
 def to_workout(activity, performance=None):
     """MCP 활동(dict) → Workout. performance가 있으면 심박을 채운다."""
