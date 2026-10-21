@@ -57,6 +57,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      # vercel build가 Python 함수(api/index.py)를 묶을 때 uv가 필요하다
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: astral-sh/setup-uv@v6
       - name: Vercel 설정 받기
         run: |
           npx --yes $VERCEL_CLI pull --yes \
