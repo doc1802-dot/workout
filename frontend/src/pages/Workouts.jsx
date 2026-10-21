@@ -147,7 +147,7 @@ export default function Workouts() {
             className="min-w-0 max-w-full overflow-x-auto rounded-xl bg-surface-container"
             tabIndex={0}
             role="region"
-            aria-label="?? ?? ?"
+            aria-label="운동 기록 표"
           >
             <table className="min-w-[1100px]">
               <caption className="p-4 text-left text-on-surface-variant">

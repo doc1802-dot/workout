@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import L from 'leaflet'
 import codec from '@mapbox/polyline'
+import { addBaseTiles } from '../../lib/mapTiles'
 
 const valid = (point) =>
   Array.isArray(point) &&
@@ -23,10 +24,7 @@ export default function LinkedRouteMap({ polyline, latlng, hoveredIndex }) {
   useEffect(() => {
     if (!node || !points.length) return
     const instance = L.map(node)
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution: '© OpenStreetMap contributors © CARTO',
-      maxZoom: 20,
-    }).addTo(instance)
+    addBaseTiles(instance)
     const route = L.polyline(points, { color: '#ff571b', weight: 4 }).addTo(instance)
     const fit = () => {
       instance.invalidateSize()

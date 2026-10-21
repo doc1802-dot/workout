@@ -67,6 +67,10 @@
 .leaflet-container {
   background: #090e16;
 }
+/* 밝은 OSM 타일을 어두운 테마에 맞게 반전 (경로·마커는 영향 없음) */
+.dark-tiles {
+  filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9) saturate(0.6);
+}
 @layer components {
   .button,
   .actions > button,
