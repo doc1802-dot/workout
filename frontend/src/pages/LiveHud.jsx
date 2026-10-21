@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import codec from '@mapbox/polyline'
 import { api } from '../lib/api'
+import { supabase } from '../lib/supabase'
 import { clock, number, pace, syncAll } from '../lib/format'
 import {
   addLap,
@@ -57,7 +58,11 @@ const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 export default function LiveHud() {
   const navigate = useNavigate()
-  const rec = useRecorder()
+  const [userId, setUserId] = useState(null)
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setUserId(data.session?.user?.id ?? null))
+  }, [])
+  const rec = useRecorder(userId)
   const { session, setSession, recovery, setRecovery } = rec
   const [sport, setSport] = useState('바이크')
   const [maxHr, setMaxHr] = useState(readMaxHr)
@@ -80,7 +85,7 @@ export default function LiveHud() {
 
   function start() {
     setRecovery(null)
-    setSession(createSession(sport))
+    setSession(createSession(sport, Date.now(), userId))
   }
   function resume(recovered) {
     setRecovery(null)
@@ -139,6 +144,7 @@ export default function LiveHud() {
           sport={sport}
           setSport={setSport}
           onStart={start}
+          ready={!!userId}
           recovery={recovery}
           onResume={resume}
           onDiscard={discardRecovery}
@@ -289,7 +295,7 @@ function StatusBadge({ status }) {
   )
 }
 
-function StartPanel({ sport, setSport, onStart, recovery, onResume, onDiscard }) {
+function StartPanel({ sport, setSport, onStart, ready, recovery, onResume, onDiscard }) {
   const supported = typeof navigator !== 'undefined' && 'geolocation' in navigator
   return (
     <Panel title="새 기록 시작" subtitle="SELECT ACTIVITY">
@@ -334,7 +340,11 @@ function StartPanel({ sport, setSport, onStart, recovery, onResume, onDiscard })
         시작하면 위치 권한을 요청합니다. 기록 중에는 화면이 꺼지지 않게 하고, 몇 초마다 기기에 임시
         저장해 앱이 닫혀도 이어서 기록할 수 있습니다.
       </p>
-      <button className="button mt-5 w-full sm:w-auto" disabled={!supported} onClick={onStart}>
+      <button
+        className="button mt-5 w-full sm:w-auto"
+        disabled={!supported || !ready}
+        onClick={onStart}
+      >
         <Icon name="play_arrow" className="mr-1 align-middle" />
         {sport} 기록 시작
       </button>

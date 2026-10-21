@@ -8,14 +8,16 @@ cli/main.py 의 메뉴 번호가 여기서는 주소(URL)가 된다.
 """
 from datetime import date, datetime, timezone
 from typing import Optional
+from urllib.parse import urlsplit
+from uuid import UUID
 
 from fastapi import Depends, FastAPI, File, HTTPException, Query, Request, Response, UploadFile
 from fastapi.responses import JSONResponse
 
-from backend import config, strava, strava_detail
+from backend import config, strava, strava_detail, strava_webhook
 from backend.auth import User, current_user
 from backend.csv_import import parse_csv
-from backend.db import Database, DBError
+from backend.db import Database, DBError, WebhookStore
 from backend.schemas import Sport, StravaExchange, StravaUpload, WorkoutCreate, WorkoutUpdate
 from backend.stats import monthly_stats, period_stats, personal_records, total_stats
 from backend.workout import Workout, from_db
@@ -25,7 +27,8 @@ app = FastAPI(title="운동기록 API")
 
 @app.exception_handler(DBError)
 def db_error_handler(request: Request, exc: DBError):
-    return JSONResponse(status_code=400, content={"detail": "저장소 처리 중 오류가 났습니다.", "error": str(exc)})
+    print(f"DB error on {request.url.path}: {exc}")          # 원문은 서버 로그에만
+    return JSONResponse(status_code=400, content={"detail": "저장소 처리 중 오류가 났습니다."})
 
 
 @app.exception_handler(strava.StravaError)
@@ -37,8 +40,14 @@ def get_db(user: User = Depends(current_user)):
     return Database(user.token)
 
 
+# 통계에는 지도 경로(polyline)가 필요 없다 → 가볍게 읽는다
+STATS_COLUMNS = ("id,date,started_at,sport,name,distance_km,duration_sec,avg_hr,max_hr,avg_cad,"
+                 "max_cad,calories,elevation_gain_m,memo,source,external_id,kudos_count,avg_watts,"
+                 "max_speed_kmh,gear_id")
+
+
 def load_workouts(db):
-    return [from_db(row) for row in db.list_workouts()]
+    return [from_db(row) for row in db.list_workouts(columns=STATS_COLUMNS)]
 
 
 @app.get("/api/health")
@@ -70,18 +79,18 @@ def add_workout(body: WorkoutCreate, db: Database = Depends(get_db)):
 
 
 @app.get("/api/workouts/{workout_id}")
-def get_workout(workout_id: str, db: Database = Depends(get_db)):
-    row = db.get_workout(workout_id)
+def get_workout(workout_id: UUID, db: Database = Depends(get_db)):
+    row = db.get_workout(str(workout_id))
     if row is None:
         raise HTTPException(404, "기록을 찾을 수 없습니다.")
     return from_db(row).to_api()
 
 
 @app.get("/api/workouts/{workout_id}/detail")
-def get_workout_detail(workout_id: str, user: User = Depends(current_user)):
+def get_workout_detail(workout_id: UUID, user: User = Depends(current_user)):
     """기록 한 건 + (Strava 활동이면) Strava의 구간·랩·세그먼트·그래프 데이터"""
     db = Database(user.token)
-    row = db.get_workout(workout_id)
+    row = db.get_workout(str(workout_id))
     if row is None:
         raise HTTPException(404, "기록을 찾을 수 없습니다.")
     result = {"workout": from_db(row).to_api(), "strava": None, "strava_error": None}
@@ -90,10 +99,11 @@ def get_workout_detail(workout_id: str, user: User = Depends(current_user)):
     try:
         connection = strava_session(db, user)
         token = connection["access_token"]
-        activity = strava.api_get(token, f"/activities/{row['external_id']}", "활동",
+        activity_id = strava.activity_id(row["external_id"])
+        activity = strava.api_get(token, f"/activities/{activity_id}", "활동",
                                   include_all_efforts="true")
         try:
-            streams = strava.api_get(token, f"/activities/{row['external_id']}/streams", "그래프 데이터",
+            streams = strava.api_get(token, f"/activities/{activity_id}/streams", "그래프 데이터",
                                      keys=strava_detail.STREAM_KEYS, key_by_type="true")
         except strava.StravaError:
             streams = None                     # 수동 입력 활동 등은 stream이 없다
@@ -104,19 +114,19 @@ def get_workout_detail(workout_id: str, user: User = Depends(current_user)):
 
 
 @app.patch("/api/workouts/{workout_id}")
-def edit_workout(workout_id: str, body: WorkoutUpdate, db: Database = Depends(get_db)):
+def edit_workout(workout_id: UUID, body: WorkoutUpdate, db: Database = Depends(get_db)):
     fields = body.model_dump(mode="json", exclude_unset=True)   # 보낸 항목만 바꾼다
     if not fields:
         raise HTTPException(422, "수정할 항목이 없습니다.")
-    row = db.update_workout(workout_id, fields)
+    row = db.update_workout(str(workout_id), fields)
     if row is None:
         raise HTTPException(404, "기록을 찾을 수 없습니다.")
     return from_db(row).to_api()
 
 
 @app.delete("/api/workouts/{workout_id}", status_code=204)
-def delete_workout(workout_id: str, db: Database = Depends(get_db)):
-    if not db.delete_workout(workout_id):
+def delete_workout(workout_id: UUID, db: Database = Depends(get_db)):
+    if not db.delete_workout(str(workout_id)):
         raise HTTPException(404, "기록을 찾을 수 없습니다.")
     return Response(status_code=204)
 
@@ -155,13 +165,15 @@ def stats_pr(db: Database = Depends(get_db)):
 # ------------------------------------------------------------------
 @app.post("/api/import/csv")
 async def import_csv(file: UploadFile = File(...), db: Database = Depends(get_db)):
-    data = await file.read()
+    data = await file.read(2 * 1024 * 1024 + 1)            # 제한보다 1바이트만 더 읽어 본다
     if len(data) > 2 * 1024 * 1024:
         raise HTTPException(413, "파일이 너무 큽니다. (최대 2MB)")
     try:
         workouts, skipped = parse_csv(data)
     except UnicodeDecodeError:
         raise HTTPException(422, "UTF-8 CSV 파일만 올릴 수 있습니다.")
+    except ValueError as exc:
+        raise HTTPException(422, str(exc))
     inserted = db.insert_workouts([w.to_db() for w in workouts], skip_duplicates=True)
     return {"imported": len(inserted), "skipped": skipped + len(workouts) - len(inserted)}
 
@@ -194,7 +206,9 @@ def get_strava_status(db: Database = Depends(get_db)):
 def get_strava_authorize_url(redirect_uri: str = Query(..., max_length=300),
                              user: User = Depends(current_user)):
     require_strava_config()
-    if not redirect_uri.startswith(("https://", "http://localhost", "http://127.0.0.1")):
+    parts = urlsplit(redirect_uri)
+    origin = f"{parts.scheme}://{parts.netloc}"
+    if origin not in config.ALLOWED_ORIGINS or parts.path != "/strava/callback" or parts.query:
         raise HTTPException(422, "redirect_uri가 올바르지 않습니다.")
     return {"url": strava.authorize_url(redirect_uri, user.id)}
 
@@ -301,6 +315,72 @@ def strava_upload_status(upload_id: int, user: User = Depends(current_user)):
     token = strava_session(db, user)["access_token"]
     res = strava.api_get(token, f"/uploads/{upload_id}", "업로드 상태")
     return {"status": res.get("status"), "activity_id": res.get("activity_id"), "error": res.get("error")}
+
+
+@app.post("/api/workouts/{workout_id}/strava")
+def push_workout_to_strava(workout_id: UUID, user: User = Depends(current_user)):
+    """앱에서 입력한 기록을 Strava '수동 활동'으로 만든다. 만든 뒤에는 그 Strava 활동과 연결해
+    다음 동기화·웹훅이 같은 활동을 또 가져오지 않게 한다."""
+    db = Database(user.token)
+    row = db.get_workout(str(workout_id))
+    if row is None:
+        raise HTTPException(404, "기록을 찾을 수 없습니다.")
+    if row.get("source") == "strava":
+        raise HTTPException(409, "이미 Strava에 있는 기록입니다.")
+    connection = strava_session(db, user)
+    if strava.WRITE_SCOPE not in (connection.get("scope") or ""):
+        raise HTTPException(403, "Strava 업로드 권한이 없습니다. 연결을 해제하고 다시 연결해 주세요.")
+
+    w = from_db(row)
+    # 시작 시각을 모르면 그날 정오로 둔다 (Strava는 시작 시각이 꼭 필요)
+    start = (datetime.fromisoformat(w.started_at).astimezone().strftime("%Y-%m-%dT%H:%M:%S")
+             if w.started_at else f"{w.date}T12:00:00")
+    activity = strava.create_activity(connection["access_token"], w, start)
+    external_id = str(activity["id"])
+    try:
+        updated = db.update_workout(str(workout_id), {"source": "strava", "external_id": external_id})
+    except DBError:
+        # 웹훅이 먼저 같은 활동을 저장했다 → 그 기록을 남기고 원래 수동 기록은 지운다
+        existing = db.find_workout("strava", external_id)
+        if existing is None:
+            raise
+        db.delete_workout(str(workout_id))
+        return from_db(existing).to_api()
+    return from_db(updated).to_api()
+
+
+# ------------------------------------------------------------------
+# Strava 웹훅: Strava에서 활동이 생기거나 바뀌거나 지워지면 자동 반영
+# ------------------------------------------------------------------
+@app.get("/api/strava/webhook")
+def strava_webhook_verify(request: Request):
+    """구독 등록 때 Strava가 보내는 확인 요청에 challenge를 돌려준다."""
+    q = request.query_params
+    token = config.STRAVA_WEBHOOK_VERIFY_TOKEN
+    if q.get("hub.mode") != "subscribe" or not token or q.get("hub.verify_token") != token:
+        raise HTTPException(403, "확인 실패")
+    return {"hub.challenge": q.get("hub.challenge", "")}
+
+
+@app.post("/api/strava/webhook")
+async def strava_webhook_event(request: Request):
+    if not (config.strava_configured() and config.STRAVA_WEBHOOK_SECRET):
+        raise HTTPException(503, "웹훅이 설정되지 않았습니다.")
+    try:
+        event = await request.json()
+    except ValueError:
+        raise HTTPException(400, "JSON이 아닙니다.")
+    if not isinstance(event, dict):
+        raise HTTPException(400, "이벤트 형식이 아닙니다.")
+    store = WebhookStore(config.STRAVA_WEBHOOK_SECRET)
+    try:
+        result = strava_webhook.handle_event(event, store, config.STRAVA_WEBHOOK_SUBSCRIPTION_ID or None)
+    except strava.StravaError as exc:
+        if exc.status == 429:
+            raise HTTPException(503, "잠시 후 다시")      # Strava가 재시도한다
+        result = f"strava error: {exc}"
+    print(f"strava webhook {event.get('aspect_type')} {event.get('object_type')} -> {result}")
+    return {"ok": True}
 
 
 @app.delete("/api/strava/connection", status_code=204)

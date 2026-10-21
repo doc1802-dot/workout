@@ -11,3 +11,4 @@ supabase/.temp/
 supabase/.branches/
 
 .env.local
+.envlogin

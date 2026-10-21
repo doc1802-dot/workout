@@ -120,3 +120,10 @@
   - 활동 쓰기 권한(`activity:write`)이 없으면 403 `"Strava 업로드 권한이 없습니다. 연결을 해제하고 다시 연결해 주세요."`
 - GET `/api/strava/upload/{upload_id}` → `{"status": "…", "activity_id": 123 | null, "error": null | "…"}`
 - POST `/api/strava/exchange` 는 `scope`(콜백 주소의 scope 값)도 받는다. `/api/strava/status` 응답에 `can_upload`(bool) 추가.
+
+### 수동 기록 → Strava, 웹훅
+- POST `/api/workouts/{id}/strava` → 앱 기록을 Strava 수동 활동으로 만들고 `source='strava'`, `external_id`로 연결한 Workout 반환
+  - 403 업로드 권한 없음, 409 이미 Strava 기록
+- GET `/api/strava/webhook?hub.mode=subscribe&hub.verify_token=…&hub.challenge=…` → `{"hub.challenge": "…"}` (구독 확인)
+- POST `/api/strava/webhook` (Strava가 호출) → `{"ok": true}`. 활동 create/update는 다시 조회해 저장, delete는 Strava 404일 때만 삭제, 선수 권한 해제 시 연결 삭제
+- `workout_id`는 UUID만 받는다 (아니면 422). `/api/strava/authorize-url`의 redirect_uri는 허용된 주소의 `/strava/callback`만.

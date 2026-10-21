@@ -106,6 +106,9 @@ cd frontend && npm run lint && npm run build
 | `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY` | 백엔드 → Supabase |
 | `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` | 화면 빌드 시 로그인용 |
 | `STRAVA_CLIENT_ID`, `STRAVA_CLIENT_SECRET` | Strava 연동 (https://www.strava.com/settings/api) |
+| `STRAVA_WEBHOOK_SECRET` | 웹훅 DB 함수 비밀값 (DB에는 해시만) |
+| `STRAVA_WEBHOOK_VERIFY_TOKEN`, `STRAVA_WEBHOOK_SUBSCRIPTION_ID` | Strava 웹훅 구독 확인·검증 |
+| `ALLOWED_ORIGINS` (선택) | Strava 연결 후 돌아올 수 있는 화면 주소 목록 |
 
 ## DB 변경
 
@@ -121,6 +124,11 @@ npx supabase db push                # 연결된 프로젝트에 적용 (supabase
 3. "지금 동기화" → 마지막으로 가져온 활동 이후 것만 받아 `workouts`에 추가 (같은 활동은 중복 저장 안 됨)
    - "전체 다시 가져오기" → 시작점을 처음으로 되돌리고 기존 기록도 갱신 (지도·응원 수 등, 메모는 유지)
    - 라이브 기록 업로드에는 `activity:write` 권한이 필요하다 (연결할 때 함께 요청)
+4. 앱에서 입력한 기록 → "Strava에도 올리기"(입력 창) 또는 활동 상세의 "Strava에 올리기" → Strava 수동 활동으로 만들고 그 활동과 연결
+5. **웹훅 자동 동기화**: Strava에서 활동이 생기거나 바뀌거나 지워지면 `POST /api/strava/webhook`으로 몇 초 안에 반영
+   - 웹훅에는 서명이 없으므로 이벤트 내용을 믿지 않고 항상 그 선수의 토큰으로 Strava를 다시 조회한다 (삭제는 Strava가 404일 때만)
+   - 로그인 사용자가 없는 요청이라, 서버에 모든 권한 키를 두지 않고 DB 함수 `strava_webhook_*`(비밀값 확인, SECURITY DEFINER)만 쓴다.
+     비밀값 원문은 Vercel 환경변수에만 있고 DB에는 SHA-256 해시만 있다. (Supabase 보안 점검의 "anon이 실행 가능한 SECURITY DEFINER" 경고는 이 의도된 설계)
 4. 러닝 케이던스는 Strava의 한 발 기준 값을 ×2 해서 spm으로 저장. 목록 API에 없는 칼로리·최대 케이던스는 비워 둔다.
 
 ## Strava MCP 동기화 (Claude Code)

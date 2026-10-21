@@ -31,5 +31,18 @@ STRAVA_CLIENT_ID = _env("STRAVA_CLIENT_ID")
 STRAVA_CLIENT_SECRET = _env("STRAVA_CLIENT_SECRET")
 
 
+# Strava 웹훅 (자동 동기화)
+STRAVA_WEBHOOK_SECRET = _env("STRAVA_WEBHOOK_SECRET")            # DB 웹훅 함수 비밀값
+STRAVA_WEBHOOK_VERIFY_TOKEN = _env("STRAVA_WEBHOOK_VERIFY_TOKEN")  # Strava 구독 확인용
+STRAVA_WEBHOOK_SUBSCRIPTION_ID = _env("STRAVA_WEBHOOK_SUBSCRIPTION_ID")
+
+# Strava 연결 후 돌아올 수 있는 화면 주소 (정확히 일치해야 함)
+ALLOWED_ORIGINS = [o.rstrip("/") for o in (
+    _env("ALLOWED_ORIGINS")
+    or "https://workout-eight-gamma.vercel.app,https://workout-deokhwan.vercel.app,"
+       "http://localhost:5173,http://127.0.0.1:5173"
+).split(",") if o.strip()]
+
+
 def strava_configured():
     return bool(STRAVA_CLIENT_ID and STRAVA_CLIENT_SECRET)

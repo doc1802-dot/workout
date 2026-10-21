@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { clearSession } from '../lib/live/recorder'
 import { api } from '../lib/api'
 import { ErrorNotice, Icon } from './ui'
 const navigation = [
@@ -73,6 +74,7 @@ export default function Layout({ session }) {
   async function logout() {
     setBusy(true)
     try {
+      clearSession() // 이 브라우저에 남은 라이브 기록은 로그아웃할 때 지운다
       const { error } = await supabase.auth.signOut()
       if (error) throw error
     } catch (error) {
