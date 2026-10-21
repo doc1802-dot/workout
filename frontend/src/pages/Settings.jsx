@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { api } from '../lib/api'
-import { number, syncMessage } from '../lib/format'
+import { number, syncAll, syncMessage } from '../lib/format'
 import Confirm from '../components/Confirm'
 export default function Settings() {
   const location = useLocation()
@@ -70,7 +70,9 @@ export default function Settings() {
         const { url } = await api(`/strava/authorize-url?${query}`)
         window.location.href = url
       } else if (kind === 'sync') {
-        const result = await api('/strava/sync', { method: 'POST' })
+        const result = await syncAll(api, (progress) =>
+          setMessage(`운동 기록을 가져오는 중… (${progress.fetched}개)`),
+        )
         setMessage(syncMessage(result))
         setStatus((current) => ({ ...current, last_synced_at: result.last_synced_at }))
       } else {
@@ -119,8 +121,7 @@ export default function Settings() {
       <section className="panel">
         <h2>Strava 기록 현황</h2>
         <p className="muted">
-          Claude Code에서 /strava-sync 를 실행하면 Strava MCP로 새 활동을 가져옵니다. 이미 있는 활동은
-          건너뜁니다.
+          내 Strava 계정을 연결하면 내 활동만 가져옵니다. 이미 가져온 활동은 다시 저장하지 않습니다.
         </p>
         {workoutsLoading ? (
           <p role="status">Strava 기록을 불러오고 있습니다…</p>
@@ -150,7 +151,10 @@ export default function Settings() {
           {status && (
             <>
               {!status.configured && (
-                <p className="notice">서버에 Strava 앱 설정이 아직 없습니다</p>
+                <p className="notice">
+                  Strava 연동이 아직 준비되지 않았습니다. 관리자가 Strava API 키를 등록하면 연결할
+                  수 있습니다.
+                </p>
               )}
               {status.connected ? (
                 <>
@@ -180,6 +184,7 @@ export default function Settings() {
                     <Confirm
                       message="Strava 연결을 해제할까요? 가져온 운동 기록은 유지됩니다."
                       busy={busy}
+                      confirmLabel="연결 해제"
                       onConfirm={() => action('disconnect')}
                       onCancel={() => setConfirm(false)}
                     />

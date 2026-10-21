@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '../lib/api'
-import { syncMessage } from '../lib/format'
+import { syncAll, syncMessage } from '../lib/format'
 export default function StravaCallback() {
   const [params] = useSearchParams()
   const navigate = useNavigate()
@@ -27,7 +27,9 @@ export default function StravaCallback() {
         const state = params.get('state') || ''
         await api('/strava/exchange', { method: 'POST', body: { code, state } })
         setMessage('연결되었습니다. 운동 기록을 동기화하고 있습니다…')
-        const result = await api('/strava/sync', { method: 'POST' })
+        const result = await syncAll(api, (progress) =>
+          setMessage(`연결되었습니다. 운동 기록을 가져오는 중… (${progress.fetched}개)`),
+        )
         navigate('/settings', {
           replace: true,
           state: {

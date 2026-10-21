@@ -101,6 +101,18 @@ def test_stats(client):
     assert client.get("/api/stats/pr").json()["best_bike"]["summary"] == "평균속도: 20.0 km/h"
 
 
+def test_stats_summary(client):
+    client.post("/api/workouts", json=RUN)
+    client.post("/api/workouts", json={**RUN, "sport": "바이크", "distance_km": 40, "duration_sec": 7200})
+    year = int(RUN["date"][:4])
+    s = client.get("/api/stats/summary", params={"year": year, "sport": "바이크"}).json()
+    assert s["unit"] == "month" and s["total"]["distance_km"] == 40.0
+    assert {x["sport"] for x in s["by_sport"]} == {"러닝", "바이크"}
+    assert client.get("/api/stats/summary", params={"month": 10}).status_code == 422
+    assert client.get("/api/stats/summary", params={"year": year, "month": 13}).status_code == 422
+    assert client.get("/api/stats/summary", params={"sport": "축구"}).status_code == 422
+
+
 def test_csv_import_skips_duplicates(client):
     data = "날짜,종목,거리(km),시간(분),평균심박,최대심박,평균케이던스,최대케이던스,칼로리,메모\n" \
            "2026-10-01,러닝,5.0,30,160,180,170,180,450,태화강 런\n"

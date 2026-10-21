@@ -9,6 +9,9 @@ import httpx
 from backend import config
 
 
+PAGE_SIZE = 1000
+
+
 class DBError(Exception):
     pass
 
@@ -37,14 +40,22 @@ class Database:
     # workouts
     # ------------------------------------------------------------------
     def list_workouts(self, sport=None, date_from=None, date_to=None):
-        params = [("select", "*"), ("order", "date.desc,started_at.desc.nullslast,created_at.desc")]
+        # 마지막 id는 나눠 받을 때 순서가 흔들리지 않게 하는 기준
+        params = [("select", "*"), ("order", "date.desc,started_at.desc.nullslast,created_at.desc,id")]
         if sport:
             params.append(("sport", f"eq.{sport}"))
         if date_from:
             params.append(("date", f"gte.{date_from}"))
         if date_to:
             params.append(("date", f"lte.{date_to}"))
-        return self._request("GET", "workouts", params=params)
+        # Supabase는 한 번에 최대 1000행만 준다 → 1000개씩 끝까지 이어 받는다
+        rows = []
+        while True:
+            page = self._request("GET", "workouts", params=params + [
+                ("limit", PAGE_SIZE), ("offset", len(rows))])
+            rows.extend(page)
+            if len(page) < PAGE_SIZE:
+                return rows
 
     def insert_workouts(self, rows, skip_duplicates=False):
         """여러 행을 한 번에 넣는다. skip_duplicates면 이미 있는 (source, external_id)는 건너뛴다."""

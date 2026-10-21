@@ -17,7 +17,7 @@ from backend.auth import User, current_user
 from backend.csv_import import parse_csv
 from backend.db import Database, DBError
 from backend.schemas import Sport, StravaExchange, WorkoutCreate, WorkoutUpdate
-from backend.stats import monthly_stats, personal_records, total_stats
+from backend.stats import monthly_stats, period_stats, personal_records, total_stats
 from backend.workout import Workout, from_db
 
 app = FastAPI(title="운동기록 API")
@@ -96,6 +96,17 @@ def stats_total(db: Database = Depends(get_db)):
 @app.get("/api/stats/monthly")
 def stats_monthly(db: Database = Depends(get_db)):
     return monthly_stats(load_workouts(db))
+
+
+@app.get("/api/stats/summary")
+def stats_summary(year: Optional[int] = Query(None, ge=2000, le=2100),
+                  month: Optional[int] = Query(None, ge=1, le=12),
+                  sport: Optional[Sport] = None,
+                  db: Database = Depends(get_db)):
+    """대시보드: 전체(연도별) / 연간(월별) / 월간(일별) + 종목 필터"""
+    if month is not None and year is None:
+        raise HTTPException(422, "월을 고르려면 연도도 함께 보내야 합니다.")
+    return period_stats(load_workouts(db), year, month, sport)
 
 
 @app.get("/api/stats/pr")
