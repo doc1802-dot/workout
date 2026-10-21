@@ -42,6 +42,13 @@
 - GET `/api/stats/total` → `{"count": 5, "distance_km": 27.4, "duration_sec": 9000, "calories": 2100, "by_sport": {"러닝": 19.4, "바이크": 8.0}}`
 - GET `/api/stats/monthly` → `[{"month": "2026-09", "count": 2, "distance_km": 10.0, "by_sport": {"러닝": 10.0}}, ...]` (월 오름차순)
 - GET `/api/stats/pr` → `{"best_run": Workout|null, "best_bike": Workout|null, "longest": Workout|null}`
+- GET `/api/stats/summary?year=2026&month=10&sport=러닝` (모두 선택, month는 year와 함께) → 대시보드용
+  - `unit`: 막대 칸 단위. year 없음 → `year`(연도별), year만 → `month`(1~12월), year+month → `day`(그 달 모든 날)
+  - `years`: 기록이 있는 연도 (필터 무시)
+  - `total`: 기간+종목으로 거른 합계 (`/stats/total`과 같은 모양)
+  - `by_sport`: 기간으로만 거른 종목별 `{sport, count, distance_km, duration_sec}` (종목 탭용, 개수 많은 순)
+  - `buckets`: `{key, label, count, distance_km, duration_sec, calories, by_sport}` — 기록 없는 칸도 0으로 채움
+  - `pr`: 기간+종목으로 거른 최고 기록
 
 ## CSV 가져오기 (예전 콘솔 프로그램의 records.csv)
 - POST `/api/import/csv` (multipart, 필드명 `file`) → `{"imported": 4, "skipped": 0}`

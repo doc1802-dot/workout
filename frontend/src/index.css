@@ -1,4 +1,4 @@
-﻿:root {
+:root {
   font-family:
     'Pretendard',
     'Noto Sans KR',
@@ -19,6 +19,12 @@
   --soft: #e9f4ed;
   --danger: #b42e35;
   --error-bg: #fff0ef;
+  --sport-run: #16735b;
+  --sport-bike: #2864ba;
+  --sport-hike: #96501a;
+  --sport-walk: #8b469f;
+  --sport-swim: #087c91;
+  --sport-other: #697360;
   color-scheme: light dark;
 }
 * {
@@ -251,6 +257,156 @@ small {
   background: var(--accent);
   border-radius: 6px;
 }
+.dashboard-filters {
+  display: grid;
+  gap: 18px;
+}
+.dashboard-filters .toggle {
+  margin: 0;
+  max-width: 360px;
+}
+.period-picker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 420px;
+}
+.period-picker select {
+  flex: 1;
+  width: auto;
+}
+.period-picker button {
+  flex-shrink: 0;
+  padding: 11px;
+}
+.sport-tabs,
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.chart-legend {
+  gap: 12px 18px;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.sport-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 7px;
+  border-radius: 50%;
+}
+button.sport-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  text-align: left;
+  background: var(--soft);
+  flex: 1 1 200px;
+}
+button.sport-summary[aria-pressed='true'] {
+  border-color: var(--accent);
+}
+.dashboard-chart-row {
+  width: 100%;
+  padding: 8px 0;
+  border: 0;
+  border-radius: 6px;
+  color: var(--text);
+  background: transparent;
+  text-align: left;
+  font-weight: 400;
+}
+button.dashboard-chart-row:hover {
+  background: var(--bg);
+  filter: none;
+}
+.stacked-track {
+  display: flex;
+}
+.period-tree-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.period-tree-heading h2 {
+  margin: 0;
+}
+.period-tree-heading + div:not([hidden]) {
+  margin-top: 20px;
+}
+.period-tree-list {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+}
+.period-tree-row {
+  display: grid;
+  grid-template-columns: 44px 84px minmax(20px, 1fr) minmax(130px, auto);
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  font-size: 0.85rem;
+}
+.period-tree-row .period-tree-toggle {
+  min-height: 44px;
+  padding: 8px;
+  font-size: 1.1rem;
+}
+.period-tree-row .period-tree-label {
+  min-height: 44px;
+  padding: 8px 4px;
+  border-color: transparent;
+  justify-content: flex-start;
+  text-align: left;
+}
+.period-tree-value {
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+.period-tree-months {
+  margin-left: 22px;
+  padding-left: 12px;
+  border-left: 1px solid var(--line);
+}
+.period-tree-month {
+  grid-template-columns: 62px minmax(20px, 1fr) minmax(130px, auto);
+}
+@media (max-width: 700px) {
+  .period-tree-row {
+    grid-template-columns: 44px minmax(0, 1fr);
+    gap: 6px 10px;
+  }
+  .period-tree-row .bar-track {
+    grid-column: 2;
+  }
+  .period-tree-value {
+    grid-column: 2;
+    font-size: 0.8rem;
+  }
+  .period-tree-month {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .period-tree-month .bar-track,
+  .period-tree-month .period-tree-value {
+    grid-column: 1;
+  }
+}
+.stacked-track .bar {
+  border-radius: 0;
+  flex-shrink: 0;
+}
+.dashboard-status {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+.dashboard-results.is-stale {
+  opacity: 0.55;
+}
 .pr-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -347,11 +503,23 @@ fieldset {
   color: var(--muted);
 }
 .confirm {
-  padding: 20px;
+  width: min(420px, calc(100vw - 32px));
+  padding: 24px;
   border: 1px solid var(--line);
-  background: var(--soft);
-  border-radius: 12px;
-  margin: 20px 0;
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 14px;
+  box-shadow: 0 18px 48px rgb(0 0 0 / 0.25);
+}
+.confirm::backdrop {
+  background: rgb(0 0 0 / 0.45);
+}
+.confirm p {
+  margin: 0 0 20px;
+  line-height: 1.6;
+}
+.confirm .actions {
+  justify-content: flex-end;
 }
 .table-wrap {
   overflow-x: auto;
@@ -490,6 +658,12 @@ footer {
     --soft: #233e32;
     --danger: #ff9a9d;
     --error-bg: #44282a;
+    --sport-run: #65c79f;
+    --sport-bike: #79adff;
+    --sport-hike: #efac6f;
+    --sport-walk: #d49ce7;
+    --sport-swim: #66cede;
+    --sport-other: #b2bba3;
     background: var(--bg);
     color: var(--text);
   }

@@ -128,6 +128,7 @@ export default function Workouts() {
         <Confirm
           message={`${deleting.date} ${deleting.sport} 기록을 삭제할까요? 삭제한 기록은 복구할 수 없습니다.`}
           busy={busy}
+          confirmLabel="삭제"
           onConfirm={remove}
           onCancel={() => setDeleting(null)}
         />
