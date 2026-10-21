@@ -3,3 +3,10 @@ records.csv
 main_backup.py
 .claude/
 .pytest_cache/
+.env
+.vercel/
+node_modules/
+supabase/.temp/
+supabase/.branches/
+
+.env.local
